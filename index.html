@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     IMMO LINK v1.1 — FICHIER UNIQUE
+     Placez logo.png et maison.jpg à côté de ce fichier.
+     Sinon : fallback SVG automatique.
+     Supabase : renseignez CONFIG en début de script.
+     ============================================================ -->
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>IMMO LINK — Trouvez votre prochain chez-vous</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://immo-link-hwi-qen.vercel.app" />
+    <meta property="og:title" content="IMMO LINK — Trouvez votre prochain chez-vous au Togo" />
+    <meta property="og:description" content="La plateforme immobilière togolaise : maisons, appartements, studios, terrains à louer ou vendre partout au Togo." />
+    <meta property="og:image" content="https://immo-link-hwi-qen.vercel.app/maison.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta name="twitter:card" content="summary_large_image" />
+<meta name="description" content="IMMO LINK, la plateforme immobilière togolaise : maisons, appartements, studios, terrains et locaux à louer ou vendre partout au Togo.">
+<meta name="theme-color" content="#E89A36">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%23E89A36"/><path d="M32 13 12 30h6v19h11V38h6v11h11V30h6Z" fill="%23fff"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+/* ============ IMMO LINK — DESIGN SYSTEM (ORANGE DOMINANT) ============ */
+:root{
+  --p:#E89A36; --p7:#C97712; --p9:#8A4F08; --p06:#FCEBD2; --p03:#FDF6EB;
+  --ink:#142C4E; --ink7:#0F2340; --ink06:#E9EEF6; --ink03:#F3F6FB;
+  --bg:#FBF7F1; --surf:#FFFFFF; --line:#F0E2CC; --line2:#F7EEE0;
+  --txt:#231A0E; --mut:#7A6A55;
+  --ok:#16A34A; --ok06:#E4F5EA; --no:#DC2626; --no06:#FCE9E9; --wa:#1FAF5E;
+  --r:14px; --rl:20px; --rx:26px;
+  --s1:0 1px 2px rgba(138,79,8,.06),0 2px 10px rgba(138,79,8,.06);
+  --s2:0 4px 14px rgba(138,79,8,.10),0 2px 4px rgba(138,79,8,.05);
+  --s3:0 18px 44px rgba(138,79,8,.16),0 6px 14px rgba(138,79,8,.08);
+  --fd:'Sora',system-ui,sans-serif; --fb:'Manrope',system-ui,sans-serif;
+  --th:66px; --bh:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--bg);color:var(--txt);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased;padding-top:var(--th)}
+::selection{background:var(--p);color:#fff}
+img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:1rem}
+h1,h2,h3,h4{font-family:var(--fd);line-height:1.18;color:var(--ink);font-weight:700}
+.container{max-width:1180px;margin:0 auto;padding:0 18px}
+.app-root{min-height:calc(100vh - var(--th));padding-bottom:calc(var(--bh) + 26px)}
+@media(min-width:920px){.app-root{padding-bottom:40px}}
+:focus-visible{outline:2.5px solid var(--p);outline-offset:2px;border-radius:6px}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .6s,transform .6s}
+.rv.in{opacity:1;transform:none}.rv-d1{transition-delay:.08s}.rv-d2{transition-delay:.16s}.rv-d3{transition-delay:.24s}
+
+/* ---- Barre supérieure ---- */
+.topbar{position:fixed;inset:0 0 auto 0;z-index:60;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--p06);transition:box-shadow .25s}
+.topbar.scrolled{box-shadow:var(--s1)}
+.topbar-in{max-width:1180px;margin:auto;height:var(--th);display:flex;align-items:center;gap:16px;padding:0 18px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-img{width:38px;height:38px;border-radius:10px;object-fit:cover;box-shadow:0 3px 8px rgba(201,119,18,.35)}
+.logo-txt{font-family:var(--fd);font-weight:800;font-size:1.14rem;letter-spacing:.02em;color:var(--ink)}
+.logo-txt span{color:var(--p7);margin-left:5px}
+.dnav{display:none;gap:4px;margin-left:14px}
+.dnav a{padding:9px 14px;border-radius:10px;font-weight:700;font-size:.95rem;color:var(--mut);transition:.2s}
+.dnav a:hover{color:var(--p9);background:var(--p03)}
+.dnav a.active{color:var(--p9);background:var(--p06)}
+@media(min-width:920px){.dnav{display:flex}}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.top-login{display:none}
+@media(min-width:920px){.top-login{display:inline-flex}}
+.plus-btn{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:.93rem;color:var(--p9);background:var(--p03);border:1.5px solid var(--p06);padding:9px 15px;border-radius:11px;transition:.2s}
+.plus-btn:hover{background:var(--p06)}
+.plus-btn[aria-expanded="true"]{background:var(--p);border-color:var(--p);color:#fff}
+.plus-ic::before{content:"";width:9px;height:9px;border-radius:2.5px;background:var(--p);display:inline-block}
+.plus-btn[aria-expanded="true"] .plus-ic::before{background:#fff}
+.plus-menu{position:absolute;top:calc(var(--th) + 8px);left:12px;right:12px;background:#fff;border:1px solid var(--p06);border-radius:var(--rl);box-shadow:var(--s3);padding:20px;opacity:0;visibility:hidden;transform:translateY(-10px);transition:.24s;z-index:70}
+.plus-menu.open{opacity:1;visibility:visible;transform:none}
+@media(min-width:760px){.plus-menu{left:auto;right:26px;width:640px}}
+.pm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+@media(min-width:760px){.pm-grid{grid-template-columns:repeat(4,1fr)}}
+.pm-title{font-family:var(--fd);font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--mut);margin-bottom:9px}
+.pm-link{display:block;padding:9px 11px;border-radius:10px;font-weight:700;font-size:.94rem;transition:.16s}
+.pm-link:hover{background:var(--p06);color:var(--p9);transform:translateX(3px)}
+
+/* ---- Nav basse mobile ---- */
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:60;height:calc(var(--bh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid var(--p06);display:grid;grid-template-columns:repeat(4,1fr)}
+@media(min-width:920px){.bnav{display:none}}
+.bnav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:.68rem;font-weight:800;color:var(--mut);position:relative;transition:.2s}
+.bnav a svg{width:23px;height:23px;transition:transform .25s}
+.bnav a.active{color:var(--p7)}
+.bnav a.active svg{transform:translateY(-2px) scale(1.08)}
+.bnav a.active::before{content:"";position:absolute;top:0;width:34px;height:3px;border-radius:0 0 4px 4px;background:var(--p)}
+
+/* ---- Boutons ---- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-weight:800;font-size:.97rem;padding:13px 22px;border-radius:12px;transition:.2s;border:1.5px solid transparent;white-space:nowrap}
+.btn svg{width:19px;height:19px;flex-shrink:0}.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,#F2AC4F,var(--p) 55%,#DE8A22);color:#fff;box-shadow:0 6px 18px rgba(232,154,54,.42)}
+.btn-primary:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 10px 24px rgba(232,154,54,.5)}
+.btn-navy{background:var(--ink);color:#fff;box-shadow:0 6px 16px rgba(20,44,78,.25)}
+.btn-navy:hover{background:var(--ink7);transform:translateY(-1px)}
+.btn-ghost{border-color:var(--p);color:var(--p9);background:#fff}
+.btn-ghost:hover{background:var(--p03)}
+.btn-wa{background:var(--wa);color:#fff;box-shadow:0 6px 16px rgba(31,175,94,.3)}
+.btn-wa:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.btn-danger{background:var(--no06);color:var(--no)}
+.btn-danger:hover{background:var(--no);color:#fff}
+.btn-sm{padding:9px 15px;font-size:.88rem;border-radius:10px}
+.btn-lg{padding:16px 28px;font-size:1.05rem;border-radius:14px}
+.btn-block{width:100%}
+.btn:disabled,.btn.loading{opacity:.6;pointer-events:none}
+.btn.loading::after{content:"";width:15px;height:15px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.icon-btn{width:42px;height:42px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:#fff;border:1.5px solid var(--line);transition:.2s;color:var(--ink)}
+.icon-btn:hover{background:var(--p03);border-color:var(--p);transform:translateY(-1px)}
+.icon-btn svg{width:19px;height:19px}
+
+/* ---- Badges ---- */
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:800;padding:5px 11px;border-radius:999px}
+.badge svg{width:13px;height:13px}
+.b-orange{background:var(--p06);color:var(--p9)}
+.b-navy{background:var(--ink06);color:var(--ink)}
+.b-green{background:var(--ok06);color:var(--ok)}
+.b-grey{background:#F1EDE6;color:var(--mut)}
+.st{display:inline-flex;align-items:center;gap:7px;font-size:.76rem;font-weight:800;padding:5px 12px;border-radius:999px}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.st-available{background:var(--ok06);color:var(--ok)}
+.st-pending{background:var(--p06);color:var(--p9)}
+.st-negotiation{background:#E8EEF9;color:#3B5BA5}
+.st-rented,.st-sold,.st-expired,.st-refused{background:var(--no06);color:var(--no)}
+.demo-tag{position:absolute;top:12px;left:12px;background:rgba(201,119,18,.92);color:#fff;font-size:.68rem;font-weight:800;letter-spacing:.06em;padding:4px 10px;border-radius:8px;text-transform:uppercase}
+
+/* ---- Héros ---- */
+.hero{position:relative;overflow:hidden;background:
+  radial-gradient(1000px 540px at 88% -12%,#FBDDB0,transparent 62%),
+  radial-gradient(760px 460px at -12% 34%,var(--p06),transparent 58%),var(--bg)}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;background-image:radial-gradient(rgba(232,154,54,.20) 1px,transparent 1px);background-size:26px 26px;mask:linear-gradient(180deg,transparent 5%,#000 40%,transparent 95%)}
+.hero-grid{position:relative;z-index:2;display:grid;gap:34px;padding:44px 0 56px;align-items:center}
+@media(min-width:960px){.hero-grid{grid-template-columns:1.05fr .95fr;padding:64px 0 76px;gap:20px}}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--p9);background:#fff;border:1.5px solid var(--p06);padding:7px 14px;border-radius:999px;box-shadow:var(--s1);margin-bottom:18px}
+.eyebrow::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--p)}
+.hero h1{font-size:clamp(2.05rem,5.4vw,3.4rem);font-weight:800;letter-spacing:-.02em}
+.hero h1 em{font-style:normal;color:var(--p7);position:relative}
+.hero h1 em::after{content:"";position:absolute;left:0;right:0;bottom:4px;height:9px;background:var(--p06);z-index:-1;border-radius:4px}
+.hero-sub{color:var(--mut);font-size:1.06rem;max-width:52ch;margin:16px 0 26px;font-weight:500}
+.search-card{background:#fff;border:1px solid var(--p06);border-top:4px solid var(--p);border-radius:var(--rl);box-shadow:var(--s3);padding:18px}
+.tx-toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--p03);padding:6px;border-radius:13px;margin-bottom:14px}
+.tx-toggle button{padding:11px;border-radius:9px;font-weight:800;font-size:.95rem;color:var(--mut);transition:.2s}
+.tx-toggle button.on{background:var(--p);color:#fff;box-shadow:0 4px 12px rgba(232,154,54,.4)}
+.search-grid{display:grid;gap:10px}
+@media(min-width:640px){.search-grid{grid-template-columns:1fr 1fr}}
+.sg-full{grid-column:1/-1}
+.mini-label{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);margin-bottom:5px;display:block}
+.hero-art{position:relative;min-height:330px;display:flex;align-items:center;justify-content:center;perspective:1100px}
+@media(min-width:960px){.hero-art{min-height:440px}}
+.house-wrap{position:relative;width:min(440px,90vw);animation:floaty 6.5s ease-in-out infinite;transform-style:preserve-3d}
+@keyframes floaty{0%,100%{transform:translateY(0) rotateZ(-.4deg)}50%{transform:translateY(-18px) rotateZ(.5deg)}}
+.house-wrap img,.house-wrap svg{width:100%;height:auto;filter:drop-shadow(0 26px 32px rgba(138,79,8,.28))}
+.house-shadow{position:absolute;left:10%;right:10%;bottom:-24px;height:30px;border-radius:50%;background:radial-gradient(ellipse,rgba(201,119,18,.35),transparent 70%);animation:shrink 6.5s ease-in-out infinite}
+@keyframes shrink{0%,100%{transform:scaleX(1);opacity:1}50%{transform:scaleX(.82);opacity:.6}}
+.float-chip{position:absolute;background:#fff;border:1.5px solid var(--p06);border-radius:14px;box-shadow:var(--s2);padding:10px 14px;display:flex;align-items:center;gap:9px;font-size:.83rem;font-weight:800;color:var(--ink);z-index:3}
+.float-chip svg{width:19px;height:19px;color:var(--p7)}
+.chip-1{top:6%;left:-4%;animation:floaty 5.2s .4s ease-in-out infinite}
+.chip-2{bottom:12%;right:-3%;animation:floaty 5.8s .9s ease-in-out infinite}
+.chip-3{top:54%;left:-9%;animation:floaty 6.2s 1.3s ease-in-out infinite}
+@media(max-width:520px){.chip-1,.chip-3{left:0}.chip-2{right:0}}
+.chip-dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px var(--ok06)}
+
+/* ---- Sections ---- */
+.section{padding:52px 0}
+.section.alt{background:#fff;border-block:1px solid var(--line2)}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:26px}
+.sec-kicker{font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--p7);margin-bottom:7px}
+.sec-title{font-size:clamp(1.4rem,3.4vw,1.9rem);letter-spacing:-.01em}
+.sec-link{font-weight:800;color:var(--ink);display:inline-flex;align-items:center;gap:7px;font-size:.93rem;white-space:nowrap}
+.sec-link svg{width:17px;height:17px;transition:transform .2s}
+.sec-link:hover svg{transform:translateX(4px)}
+.sec-link:hover{color:var(--p7)}
+.cat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(min-width:640px){.cat-row{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:960px){.cat-row{grid-template-columns:repeat(7,1fr)}}
+.cat-card{background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);padding:18px 10px 15px;text-align:center;transition:.25s;position:relative;overflow:hidden}
+.cat-card::before{content:"";position:absolute;inset:auto 0 0 0;height:3px;background:var(--p);transform:scaleX(0);transition:.3s}
+.cat-card:hover{transform:translateY(-5px);box-shadow:var(--s2);border-color:var(--p)}
+.cat-card:hover::before{transform:scaleX(1)}
+.cat-ic{width:52px;height:52px;margin:0 auto 10px;border-radius:15px;background:var(--p03);display:flex;align-items:center;justify-content:center;color:var(--p7);transition:.25s}
+.cat-card:hover .cat-ic{background:var(--p06);color:var(--p9);transform:scale(1.06) rotate(-3deg)}
+.cat-ic svg{width:26px;height:26px}
+.cat-name{font-weight:800;font-size:.84rem;color:var(--ink)}
+.cat-count{font-size:.72rem;color:var(--mut);font-weight:600;margin-top:2px}
+
+/* ---- Cartes annonces ---- */
+.p-grid{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:620px){.p-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:980px){.p-grid{grid-template-columns:repeat(3,1fr)}}
+.pcard{background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);overflow:hidden;transition:transform .28s,box-shadow .28s,border-color .28s;cursor:pointer;display:flex;flex-direction:column;position:relative}
+.pcard:hover{transform:translateY(-6px);box-shadow:var(--s3);border-color:var(--p)}
+.pcard-img{position:relative;aspect-ratio:16/10.4;overflow:hidden;background:var(--p03)}
+.pcard-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.pcard:hover .pcard-img img{transform:scale(1.055)}
+.pcard-status{position:absolute;top:12px;right:12px}
+.fav-btn{position:absolute;bottom:12px;right:12px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;color:var(--ink);box-shadow:var(--s1);transition:.2s;z-index:2}
+.fav-btn svg{width:19px;height:19px}
+.fav-btn:hover{transform:scale(1.12)}
+.fav-btn.on{color:var(--no)}
+.fav-btn.on svg path{fill:var(--no)}
+.pcard-body{padding:15px 16px 16px;display:flex;flex-direction:column;gap:7px;flex:1}
+.pcard-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pcard-cat{font-size:.71rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--p7)}
+.pcard-price{font-family:var(--fd);font-weight:800;font-size:1.14rem;color:var(--p9)}
+.pcard-price small{font-size:.74rem;color:var(--mut);font-weight:700}
+.pcard-title{font-weight:800;font-size:1rem;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.pcard-loc{display:flex;align-items:center;gap:5px;color:var(--mut);font-size:.86rem;font-weight:600}
+.pcard-loc svg{width:14px;height:14px;flex-shrink:0}
+.pcard-meta{display:flex;gap:14px;padding-top:10px;margin-top:auto;border-top:1px dashed var(--line);color:var(--mut);font-size:.8rem;font-weight:700}
+.pcard-meta span{display:inline-flex;align-items:center;gap:5px}
+.pcard-meta svg{width:15px;height:15px}
+
+/* ---- Démarcheurs ---- */
+.agents-row{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));perspective:1300px}
+.agent-frame{background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);padding:22px;text-align:center;transition:transform .35s,box-shadow .35s;transform-style:preserve-3d;cursor:pointer;position:relative}
+.agent-frame:hover{box-shadow:var(--s3);border-color:var(--p)}
+.agent-frame .ribbon{position:absolute;top:14px;right:-1px;background:var(--ok);color:#fff;font-size:.66rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:4px 10px;border-radius:8px 0 0 8px}
+.avatar{border-radius:50%;overflow:hidden;margin:0 auto 12px;width:78px;height:78px;box-shadow:var(--s2);border:3px solid #fff;outline:2.5px solid var(--p);transform:translateZ(28px)}
+.avatar svg,.avatar img{width:100%;height:100%;object-fit:cover}
+.agent-name{font-weight:800;font-size:1.02rem;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:6px}
+.agent-name svg{width:16px;height:16px;color:var(--ok)}
+.agent-agency{font-size:.83rem;color:var(--mut);font-weight:600}
+.agent-city{display:inline-flex;align-items:center;gap:5px;font-size:.8rem;color:var(--mut);margin-top:6px}
+.agent-city svg{width:13px;height:13px}
+.agent-stats{display:flex;justify-content:center;gap:18px;margin-top:14px;padding-top:13px;border-top:1px dashed var(--line)}
+.agent-stats b{font-family:var(--fd);font-size:1.05rem;color:var(--p9);display:block}
+.agent-stats small{font-size:.72rem;color:var(--mut);font-weight:700}
+
+/* ---- Étapes / CTA ---- */
+.steps{display:grid;gap:16px}
+@media(min-width:820px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{position:relative;background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);padding:26px 22px;transition:.25s}
+.step:hover{transform:translateY(-4px);box-shadow:var(--s2);border-color:var(--p)}
+.step-num{font-family:var(--fd);font-size:2.6rem;font-weight:800;color:var(--p06);-webkit-text-stroke:1.6px var(--p);line-height:1;margin-bottom:13px}
+.step h3{font-size:1.05rem;margin-bottom:7px}
+.step p{color:var(--mut);font-size:.92rem}
+.step-ic{position:absolute;top:22px;right:22px;width:44px;height:44px;border-radius:13px;background:var(--p06);color:var(--p9);display:flex;align-items:center;justify-content:center}
+.step-ic svg{width:22px;height:22px}
+.cta-band{background:linear-gradient(120deg,#F2AC4F,var(--p) 45%,#D97A1F 100%);border-radius:var(--rx);padding:44px 28px;color:#fff;position:relative;overflow:hidden;display:grid;gap:22px;align-items:center;box-shadow:0 20px 44px rgba(217,122,31,.35)}
+@media(min-width:820px){.cta-band{grid-template-columns:1.3fr auto;padding:52px 54px}}
+.cta-band::before{content:"";position:absolute;right:-70px;top:-70px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.35),transparent 68%)}
+.cta-band::after{content:"";position:absolute;left:-40px;bottom:-90px;width:230px;height:230px;border-radius:50%;border:26px solid rgba(255,255,255,.14)}
+.cta-band h2{color:#fff;font-size:clamp(1.4rem,3.4vw,2rem);margin-bottom:9px}
+.cta-band p{color:#FFF3E0;font-weight:500;max-width:52ch}
+.cta-band .btn{position:relative;z-index:2}
+.cta-band .btn-white{background:#fff;color:var(--p9);box-shadow:0 8px 22px rgba(0,0,0,.18)}
+
+/* ---- Explorer ---- */
+.page-head{padding:30px 0 6px}
+.page-head h1{font-size:clamp(1.5rem,4vw,2.1rem)}
+.page-head p{color:var(--mut);margin-top:5px;font-weight:500}
+.exp-bar{position:sticky;top:var(--th);z-index:40;background:rgba(251,247,241,.94);backdrop-filter:blur(10px);padding:12px 0;border-bottom:1px solid var(--line2);margin-bottom:22px}
+.exp-bar-in{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.exp-search{flex:1;min-width:190px;position:relative}
+.exp-search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--mut)}
+.exp-search input{width:100%;padding:12px 14px 12px 40px;border:1.5px solid var(--line);border-radius:12px;background:#fff;font-size:.95rem}
+.exp-search input:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 4px var(--p06)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:8px 15px;border-radius:999px;background:#fff;border:1.5px solid var(--line);font-weight:800;font-size:.85rem;color:var(--mut);transition:.2s}
+.chip:hover{border-color:var(--p)}
+.chip.on{background:var(--p);border-color:var(--p);color:#fff}
+.filters-panel{background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);padding:20px;margin-bottom:22px;display:grid;gap:14px;box-shadow:var(--s1)}
+@media(min-width:760px){.filters-panel{grid-template-columns:repeat(4,1fr);align-items:end}}
+.result-count{color:var(--mut);font-weight:600;font-size:.92rem;margin-bottom:16px}
+.result-count b{color:var(--p9)}
+.pager{display:flex;justify-content:center;gap:7px;margin-top:32px;flex-wrap:wrap}
+.pager button{min-width:42px;height:42px;border-radius:11px;background:#fff;border:1.5px solid var(--line);font-weight:800;color:var(--mut);transition:.2s;padding:0 10px}
+.pager button:hover{border-color:var(--p);color:var(--p9)}
+.pager button.on{background:var(--p);border-color:var(--p);color:#fff}
+.pager button:disabled{opacity:.4;pointer-events:none}
+
+/* ---- Détail ---- */
+.detail-grid{display:grid;gap:26px;margin-top:20px}
+@media(min-width:960px){.detail-grid{grid-template-columns:1.6fr 1fr}}
+.gal{background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);overflow:hidden}
+.gal-main{aspect-ratio:16/10;background:var(--p03)}
+.gal-main img{width:100%;height:100%;object-fit:cover}
+.gal-thumbs{display:flex;gap:8px;padding:12px;overflow-x:auto}
+.gal-thumbs button{width:84px;height:60px;border-radius:10px;overflow:hidden;flex-shrink:0;border:2.5px solid transparent;transition:.2s;opacity:.75}
+.gal-thumbs button.on{border-color:var(--p);opacity:1}
+.gal-thumbs img{width:100%;height:100%;object-fit:cover}
+.info-card{background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);padding:20px}
+.info-card + .info-card{margin-top:16px}
+.info-card h3{font-size:1.02rem;margin-bottom:13px;display:flex;align-items:center;gap:9px}
+.info-card h3 svg{width:18px;height:18px;color:var(--p)}
+.detail-title{font-size:clamp(1.25rem,3.4vw,1.7rem);margin:9px 0 4px}
+.detail-price{font-family:var(--fd);font-size:clamp(1.5rem,4vw,2rem);font-weight:800;color:var(--p7)}
+.detail-price small{font-size:.9rem;color:var(--mut);font-weight:700}
+.meta-strip{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}
+.meta-pill{display:inline-flex;align-items:center;gap:7px;background:var(--p03);color:var(--p9);font-weight:800;font-size:.86rem;padding:9px 14px;border-radius:11px}
+.meta-pill svg{width:16px;height:16px}
+.amen-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+@media(min-width:560px){.amen-grid{grid-template-columns:repeat(3,1fr)}}
+.amen{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:600;background:var(--bg);padding:9px 12px;border-radius:10px}
+.amen svg{width:15px;height:15px;color:var(--ok);flex-shrink:0}
+.act-stack{display:grid;gap:10px}
+.agent-mini{display:flex;align-items:center;gap:13px;padding-bottom:15px;margin-bottom:15px;border-bottom:1px dashed var(--line)}
+.agent-mini .avatar{width:56px;height:56px;margin:0;transform:none}
+.agent-mini b{display:flex;align-items:center;gap:6px;color:var(--ink)}
+.agent-mini b svg{width:15px;height:15px;color:var(--ok)}
+.agent-mini small{color:var(--mut);font-weight:600;display:block}
+.cost-table{width:100%;border-collapse:collapse;font-size:.92rem}
+.cost-table td{padding:9px 0;border-bottom:1px dashed var(--line2)}
+.cost-table td:last-child{text-align:right;font-weight:800;color:var(--ink)}
+.map-box{height:280px;border-radius:var(--r);overflow:hidden;background:var(--p03)}
+.report-link{font-size:.82rem;color:var(--mut);text-decoration:underline;text-underline-offset:3px;margin-top:12px;display:inline-block}
+.report-link:hover{color:var(--no)}
+
+/* ---- Formulaires ---- */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:800;font-size:.86rem;color:var(--ink)}
+.field label small{color:var(--mut);font-weight:600}
+.in{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:12px;background:#fff;font-size:.98rem;transition:.2s;color:var(--txt)}
+.in:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 4px var(--p06)}
+textarea.in{min-height:110px;resize:vertical}
+.err{color:var(--no);font-size:.8rem;font-weight:700;display:none}
+.err.show{display:block}
+.hint{font-size:.8rem;color:var(--mut);font-weight:500}
+.form-grid{display:grid;gap:15px}
+@media(min-width:640px){.form-grid{grid-template-columns:1fr 1fr}.form-grid .full{grid-column:1/-1}}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--p03);border:1.5px solid var(--p06);border-radius:13px;padding:5px;gap:5px}
+.seg button{padding:12px;border-radius:9px;font-weight:800;font-size:.92rem;color:var(--mut);transition:.2s}
+.seg button.on{background:#fff;color:var(--p9);box-shadow:var(--s1)}
+.check-row{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+@media(min-width:640px){.check-row{grid-template-columns:repeat(3,1fr)}}
+.check-item{display:flex;align-items:center;gap:9px;background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;font-weight:700;font-size:.88rem;cursor:pointer;transition:.2s;user-select:none}
+.check-item:has(input:checked){border-color:var(--p);background:var(--p03)}
+.check-item input{accent-color:var(--p);width:17px;height:17px}
+.form-sec{background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);padding:22px;margin-bottom:18px}
+.form-sec h3{display:flex;align-items:center;gap:10px;margin-bottom:17px;font-size:1.03rem}
+.form-sec h3 .n{width:29px;height:29px;border-radius:9px;background:var(--p);color:#fff;font-family:var(--fd);font-size:.88rem;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+.photo-item{position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;border:2.5px solid var(--line)}
+.photo-item img{width:100%;height:100%;object-fit:cover}
+.photo-item .pi-x{position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;background:rgba(20,44,78,.85);color:#fff;display:flex;align-items:center;justify-content:center}
+.photo-item .pi-x svg{width:13px;height:13px}
+.photo-item.main{border-color:var(--p)}
+.pi-main{position:absolute;bottom:5px;left:5px;background:var(--p);color:#fff;font-size:.62rem;font-weight:800;padding:3px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.05em}
+.photo-add{aspect-ratio:4/3;border:2px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--mut);font-weight:700;font-size:.8rem;transition:.2s;background:var(--p03)}
+.photo-add:hover{border-color:var(--p);color:var(--p9)}
+.photo-add svg{width:24px;height:24px}
+
+/* ---- Auth ---- */
+.auth-wrap{display:grid;min-height:calc(100vh - var(--th) - var(--bh))}
+@media(min-width:900px){.auth-wrap{grid-template-columns:.9fr 1.1fr}}
+.auth-side{background:linear-gradient(150deg,#F2AC4F,var(--p) 45%,#C97712);color:#fff;padding:44px 30px;display:none;position:relative;overflow:hidden}
+@media(min-width:900px){.auth-side{display:flex;flex-direction:column;justify-content:center}}
+.auth-side::before{content:"";position:absolute;right:-90px;top:-90px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.35),transparent 70%)}
+.auth-side h2{color:#fff;font-size:1.7rem;margin-bottom:12px}
+.auth-side p{color:#FFF3E0;max-width:40ch;font-weight:500}
+.auth-side ul{margin-top:26px;display:grid;gap:13px;list-style:none}
+.auth-side li{display:flex;gap:11px;align-items:center;font-weight:700;font-size:.94rem}
+.auth-side li svg{width:20px;height:20px;color:#fff;flex-shrink:0}
+.auth-main{display:flex;align-items:center;justify-content:center;padding:36px 18px}
+.auth-card{width:100%;max-width:480px;background:#fff;border:1.5px solid var(--p06);border-radius:var(--rx);box-shadow:var(--s3);padding:30px 26px}
+@media(min-width:640px){.auth-card{padding:38px 36px}}
+.auth-card h1{font-size:1.5rem;margin-bottom:6px}
+.auth-card .sub{color:var(--mut);font-weight:500;margin-bottom:22px}
+.auth-alt{text-align:center;margin-top:18px;color:var(--mut);font-weight:600;font-size:.92rem}
+.auth-alt a{color:var(--p7);font-weight:800}
+.demo-accounts{margin-top:20px;background:var(--p03);border:1.5px dashed var(--p06);border-radius:12px;padding:13px 15px;font-size:.82rem;color:var(--mut)}
+.demo-accounts b{color:var(--p9)}
+
+/* ---- Espaces ---- */
+.space{display:grid;gap:24px;padding-top:26px}
+@media(min-width:960px){.space{grid-template-columns:236px 1fr}}
+.sidenav{display:none}
+@media(min-width:960px){.sidenav{display:block;position:sticky;top:calc(var(--th) + 20px);align-self:start;background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);padding:14px;box-shadow:var(--s1)}}
+.sn-user{display:flex;align-items:center;gap:11px;padding:8px 10px 15px;border-bottom:1px dashed var(--line);margin-bottom:11px}
+.sn-user .avatar{width:44px;height:44px;margin:0;transform:none}
+.sn-user b{display:block;font-size:.92rem;color:var(--ink)}
+.sn-user small{color:var(--mut);font-size:.76rem;font-weight:700}
+.sn-link{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:11px;font-weight:700;font-size:.92rem;color:var(--mut);transition:.18s;margin-bottom:2px}
+.sn-link svg{width:19px;height:19px}
+.sn-link:hover{background:var(--p03);color:var(--p9)}
+.sn-link.active{background:var(--p);color:#fff;box-shadow:0 4px 12px rgba(232,154,54,.35)}
+.sp-tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px;scrollbar-width:none;position:sticky;top:var(--th);z-index:35;background:var(--bg)}
+@media(min-width:960px){.sp-tabs{display:none}}
+.sp-tabs::-webkit-scrollbar{display:none}
+.sp-tab{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:999px;background:#fff;border:1.5px solid var(--line);font-weight:800;font-size:.84rem;color:var(--mut)}
+.sp-tab svg{width:16px;height:16px}
+.sp-tab.active{background:var(--p);border-color:var(--p);color:#fff}
+.sp-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.sp-head h1{font-size:clamp(1.25rem,3vw,1.6rem)}
+.stat-grid{display:grid;gap:14px;grid-template-columns:repeat(2,1fr);margin-bottom:22px}
+@media(min-width:900px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-card{background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);padding:18px;position:relative;overflow:hidden;transition:.25s}
+.stat-card:hover{transform:translateY(-3px);box-shadow:var(--s2);border-color:var(--p)}
+.stat-card::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--ac,var(--p))}
+.sc-ic{width:40px;height:40px;border-radius:11px;background:var(--p06);color:var(--p9);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.sc-ic svg{width:20px;height:20px}
+.stat-num{font-family:var(--fd);font-size:1.7rem;font-weight:800;color:var(--ink)}
+.stat-lbl{font-size:.8rem;font-weight:700;color:var(--mut);margin-top:2px}
+.row-list{display:grid;gap:12px}
+.row-item{background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);padding:16px;display:grid;gap:12px;transition:.2s}
+.row-item:hover{box-shadow:var(--s1);border-color:var(--p)}
+@media(min-width:720px){.row-item.cols{grid-template-columns:96px 1fr auto;align-items:center}}
+.row-thumb{width:96px;height:70px;border-radius:11px;overflow:hidden;background:var(--p03)}
+.row-thumb img{width:100%;height:100%;object-fit:cover}
+.row-item b{color:var(--ink)}
+.ri-sub{font-size:.85rem;color:var(--mut);font-weight:600;margin-top:2px}
+.ri-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.plans{display:grid;gap:16px}
+@media(min-width:820px){.plans{grid-template-columns:repeat(3,1fr)}}
+.plan{background:#fff;border:2px solid var(--line);border-radius:var(--rl);padding:26px 22px;position:relative;transition:.25s}
+.plan:hover{transform:translateY(-4px);box-shadow:var(--s2)}
+.plan.pop{border-color:var(--p);box-shadow:0 12px 30px rgba(232,154,54,.22)}
+.pop-tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--p);color:#fff;font-size:.7rem;font-weight:800;padding:5px 14px;border-radius:999px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.plan h3{font-size:1.06rem}
+.plan-price{font-family:var(--fd);font-size:1.9rem;font-weight:800;color:var(--p9);margin:10px 0 2px}
+.plan-price small{font-size:.82rem;color:var(--mut);font-weight:700}
+.plan ul{list-style:none;margin:17px 0 20px;display:grid;gap:9px}
+.plan li{display:flex;gap:9px;font-size:.9rem;font-weight:600;align-items:flex-start}
+.plan li svg{width:16px;height:16px;color:var(--ok);flex-shrink:0;margin-top:2px}
+.chart-card{background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);padding:20px;margin-bottom:16px}
+.chart-card h3{font-size:1rem;margin-bottom:14px}
+.bar-row{display:grid;grid-template-columns:52px 1fr 44px;gap:10px;align-items:center;margin-bottom:9px;font-size:.8rem;font-weight:700;color:var(--mut)}
+.bar-track{height:12px;background:var(--p03);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--p),#F2AC4F);transition:width 1s}
+.tbl{width:100%;border-collapse:collapse;font-size:.9rem}
+.tbl th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);padding:10px 12px;border-bottom:1.5px solid var(--line)}
+.tbl td{padding:13px 12px;border-bottom:1px solid var(--line2);font-weight:600}
+
+/* ---- États / toasts / modales ---- */
+.empty{text-align:center;padding:52px 20px;background:#fff;border:1.5px dashed var(--p06);border-radius:var(--rl)}
+.empty svg{width:74px;height:74px;margin:0 auto 16px;color:var(--p06)}
+.empty h3{margin-bottom:6px}
+.empty p{color:var(--mut);max-width:44ch;margin:0 auto 18px;font-weight:500}
+.sk{position:relative;overflow:hidden;background:var(--p03);border-radius:var(--r)}
+.sk::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);animation:shine 1.4s infinite}
+@keyframes shine{to{transform:translateX(100%)}}
+.sk-card{border-radius:var(--rl);overflow:hidden;background:#fff;border:1.5px solid var(--line)}
+.sk-img{aspect-ratio:16/10}
+.sk-line{height:13px;margin:11px 16px;border-radius:6px}
+.toasts{position:fixed;top:calc(var(--th) + 12px);left:50%;transform:translateX(-50%);z-index:120;display:flex;flex-direction:column;gap:9px;width:min(430px,calc(100vw - 28px))}
+@media(min-width:920px){.toasts{left:auto;right:22px;transform:none}}
+.toast{background:#fff;border:1px solid var(--line);border-left:4px solid var(--p);border-radius:13px;box-shadow:var(--s3);padding:13px 16px;display:flex;gap:11px;align-items:flex-start;font-weight:700;font-size:.9rem;animation:toastIn .32s cubic-bezier(.2,.9,.3,1.2)}
+.toast svg{width:19px;height:19px;flex-shrink:0;margin-top:1px;color:var(--p)}
+.toast.success{border-left-color:var(--ok)}.toast.success svg{color:var(--ok)}
+.toast.error{border-left-color:var(--no)}.toast.error svg{color:var(--no)}
+@keyframes toastIn{from{opacity:0;transform:translateY(-14px) scale(.96)}}
+.toast.out{opacity:0;transform:translateY(-8px);transition:.3s}
+.mroot{position:fixed;inset:0;z-index:110;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:640px){.mroot{align-items:center;padding:20px}}
+.moverlay{position:absolute;inset:0;background:rgba(138,79,8,.35);backdrop-filter:blur(3px);animation:fadeIn .25s}
+@keyframes fadeIn{from{opacity:0}}
+.mpanel{position:relative;background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:520px;max-height:88vh;overflow:auto;padding:24px;animation:slideUp .3s cubic-bezier(.2,.9,.3,1.05)}
+@media(min-width:640px){.mpanel{border-radius:22px}}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}}
+.mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.mhead h3{font-size:1.1rem}
+.mclose{width:36px;height:36px;border-radius:10px;background:var(--p03);display:flex;align-items:center;justify-content:center}
+.mclose svg{width:17px;height:17px}
+.demo-pill{position:fixed;bottom:calc(var(--bh) + 14px);left:14px;z-index:55;background:var(--p7);color:#fff;font-size:.72rem;font-weight:800;padding:7px 13px;border-radius:999px;box-shadow:var(--s2);letter-spacing:.03em}
+@media(min-width:920px){.demo-pill{bottom:18px;left:18px}}
+.notice{display:flex;gap:11px;background:var(--p03);border:1.5px solid var(--p06);border-radius:13px;padding:13px 16px;font-size:.88rem;font-weight:600;color:var(--p9);margin:14px 0;align-items:flex-start}
+.notice svg{width:18px;height:18px;flex-shrink:0;margin-top:1px}
+.notice.green{background:var(--ok06);border-color:#BFE8CF;color:var(--ok)}
+.notice.navy{background:var(--ink03);border-color:#D4DEEE;color:var(--ink)}
+.back-link{display:inline-flex;align-items:center;gap:7px;font-weight:800;font-size:.9rem;color:var(--mut);margin:20px 0 4px}
+.back-link svg{width:16px;height:16px}
+.back-link:hover{color:var(--p9)}
+.legal-body{max-width:760px;background:#fff;border:1.5px solid var(--line);border-radius:var(--rl);padding:30px 26px;margin:22px 0}
+.legal-body h2{font-size:1.15rem;margin:24px 0 8px}
+.legal-body h2:first-child{margin-top:0}
+.legal-body p,.legal-body li{color:var(--mut);font-weight:500}
+.legal-body ul{padding-left:20px;display:grid;gap:6px;margin:8px 0}
+.page-fade{animation:pageIn .38s ease}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}.rv{opacity:1;transform:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="topbar" id="topbar">
+  <div class="topbar-in">
+    <a class="logo" href="#/" aria-label="IMMO LINK — Accueil">
+      <img class="logo-img" id="logoImg" src="logo.png" alt="IMMO LINK">
+      <span class="logo-txt">IMMO<span>LINK</span></span>
+    </a>
+    <nav class="dnav" aria-label="Navigation principale">
+      <a href="#/" data-nav="home">Accueil</a>
+      <a href="#/explorer" data-nav="explore">Explorer</a>
+      <a href="#/favoris" data-nav="fav">Favoris</a>
+      <a href="#/profil" data-nav="profile">Profil</a>
+    </nav>
+    <div class="top-actions">
+      <button class="plus-btn" id="plusBtn" aria-expanded="false" aria-controls="plusMenu"><span class="plus-ic"></span>Plus</button>
+      <a href="#/connexion" class="btn btn-primary btn-sm top-login" id="topLoginBtn">Connexion</a>
+    </div>
+  </div>
+  <div class="plus-menu" id="plusMenu" role="menu" aria-label="Menu étendu">
+    <div class="pm-grid">
+      <div><p class="pm-title">Rechercher</p><a class="pm-link" href="#/location">Location</a><a class="pm-link" href="#/vente">Vente</a></div>
+      <div><p class="pm-title">Types de biens</p><a class="pm-link" href="#/categorie/maison">Maisons</a><a class="pm-link" href="#/categorie/appartement">Appartements</a><a class="pm-link" href="#/categorie/studio">Studios</a><a class="pm-link" href="#/categorie/terrain">Terrains</a><a class="pm-link" href="#/categorie/boutique">Boutiques</a><a class="pm-link" href="#/categorie/bureau">Bureaux</a><a class="pm-link" href="#/categorie/local">Locaux commerciaux</a></div>
+      <div><p class="pm-title">Plateforme</p><a class="pm-link" href="#/demarcheurs">Démarcheurs</a><a class="pm-link" href="#/a-propos">À propos</a><a class="pm-link" href="#/contact">Contact</a></div>
+      <div><p class="pm-title">Compte</p><a class="pm-link" href="#/profil" id="pmSpace">Mon espace</a><a class="pm-link" href="#/legal/cgu">Conditions d'utilisation</a><a class="pm-link" href="#/legal/confidentialite">Confidentialité</a><a class="pm-link" href="#/legal/mentions">Mentions légales</a></div>
+    </div>
+  </div>
+</header>
+
+<main id="app" class="app-root" aria-live="polite"></main>
+
+<nav class="bnav" aria-label="Navigation mobile">
+  <a href="#/" data-nav="home"><span class="bn-ic"></span>Accueil</a>
+  <a href="#/explorer" data-nav="explore"><span class="bn-ic"></span>Explorer</a>
+  <a href="#/favoris" data-nav="fav"><span class="bn-ic"></span>Favoris</a>
+  <a href="#/profil" data-nav="profile"><span class="bn-ic"></span>Profil</a>
+</nav>
+
+<div class="toasts" id="toasts" aria-live="assertive"></div>
+<div class="mroot" id="mroot" hidden></div>
+<div class="demo-pill" id="demoPill" hidden>Mode démonstration</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ================= CONFIG ================= */
+const CONFIG = {
+  SUPABASE_URL: "",            // ex: https://xxxx.supabase.co
+  SUPABASE_ANON_KEY: "",       // clé anon publique
+  MAX_PHOTOS: 15, PAGE_SIZE: 9,
+  PLANS: [
+    {id:"decouverte",name:"Découverte",price:0,period:"",quota:2,pop:false},
+    {id:"professionnel",name:"Professionnel",price:3000,period:"/mois",quota:15,pop:true},
+    {id:"agence",name:"Agence",price:7000,period:"/mois",quota:50,pop:false}]
+};
+const DB = (()=>{ const u=CONFIG.SUPABASE_URL.trim(), k=CONFIG.SUPABASE_ANON_KEY.trim();
+  let c=null,live=false;
+  if(u&&k&&window.supabase){ try{ c=window.supabase.createClient(u,k); live=true; }catch(e){} }
+  return {client:c,live}; })();
+
+/* ================= DONNÉES DÉMO + SVG ================= */
+const Demo = (()=>{
+  const P=[["#DCEBFA","#FDF3E4","#F4E9D8","#142C4E","#CDE3C4"],["#E3F0FC","#FBEEDB","#EAD9C4","#B4652F","#D6E6CB"],["#D9E8F8","#FDF0E0","#F0E2EE","#7A4E8C","#CDE3C4"],["#E0EFF9","#FBE9D5","#DCE8F2","#2F6BB4","#D8E8CE"],["#DDECF7","#FDF4E7","#F6E5C9","#C2542E","#CFE2C3"]];
+  const enc=s=>"data:image/svg+xml,"+encodeURIComponent(s);
+  const win=(x,y,w,h,c="#9FC4E8")=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${c}" stroke="#fff" stroke-width="3"/>`;
+  const palm=x=>`<path d="M${x} 410 q6 -70 2 -96" stroke="#8A6A44" stroke-width="9" fill="none" stroke-linecap="round"/><g fill="#4E8F52"><path d="M${x+2} 314 q-46 -26 -78 -8 q40 -34 78 8Z"/><path d="M${x+2} 314 q46 -26 78 -8 q-40 -34 -78 8Z"/><path d="M${x+2} 314 q-12 -46 -44 -56 q42 4 44 56Z"/><path d="M${x+2} 314 q12 -46 44 -56 q-42 4 -44 56Z"/></g>`;
+  function scene(cat,seed){ const p=P[seed%P.length]; let b="";
+    const sky=`<defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${p[0]}"/><stop offset="1" stop-color="${p[1]}"/></linearGradient></defs><rect width="800" height="520" fill="url(#sk)"/><circle cx="660" cy="92" r="46" fill="#F7C873" opacity=".9"/><rect y="410" width="800" height="110" fill="${p[4]}"/>`;
+    if(cat==="maison") b=`<rect x="170" y="230" width="430" height="180" rx="8" fill="${p[2]}"/><rect x="150" y="205" width="470" height="30" rx="8" fill="${p[3]}"/><rect x="430" y="150" width="150" height="86" rx="8" fill="${p[3]}"/>${win(200,265,90,70)}${win(320,265,90,70)}<rect x="470" y="290" width="80" height="120" rx="6" fill="${p[3]}"/>${win(455,170,100,40)}${palm(95)}${palm(700)}`;
+    else if(cat==="appartement") b=`<rect x="200" y="110" width="380" height="300" rx="10" fill="${p[2]}"/><rect x="185" y="92" width="410" height="26" rx="8" fill="${p[3]}"/>${[0,1,2].map(r=>[0,1,2].map(c=>win(235+c*115,150+r*82,80,52)).join("")).join("")}<rect x="360" y="350" width="60" height="60" rx="5" fill="${p[3]}"/>${palm(110)}${palm(690)}`;
+    else if(cat==="studio") b=`<rect x="250" y="260" width="300" height="150" rx="8" fill="${p[2]}"/><path d="M230 268 L400 178 L570 268Z" fill="${p[3]}"/>${win(285,300,72,60)}<rect x="430" y="300" width="72" height="110" rx="6" fill="${p[3]}"/>${palm(130)}${palm(680)}`;
+    else if(cat==="terrain") b=`<path d="M120 430 L300 300 L680 300 L560 430Z" fill="#E8DDB8" stroke="${p[3]}" stroke-width="5" stroke-dasharray="16 10"/><g stroke="#8A6A44" stroke-width="8" stroke-linecap="round"><path d="M300 300 v-42"/><path d="M680 300 v-42"/><path d="M120 430 v-42"/><path d="M560 430 v-42"/></g>${palm(80)}${palm(720)}`;
+    else if(cat==="boutique") b=`<rect x="190" y="210" width="420" height="200" rx="8" fill="${p[2]}"/><path d="M180 210 h440 l-18 -52 h-404Z" fill="${p[3]}"/>${[0,1,2,3,4].map(i=>`<path d="M${205+i*82} 210 h74 v34 a37 20 0 0 1 -74 0Z" fill="${i%2?"#fff":p[3]}"/>`).join("")}${win(225,290,150,95)}${win(425,290,150,95)}`;
+    else b=`<rect x="220" y="120" width="340" height="290" rx="10" fill="#D7E4F2" stroke="${p[3]}" stroke-width="6"/>${[0,1,2,3].map(r=>[0,1,2].map(c=>`<rect x="${250+c*100}" y="${152+r*62}" width="72" height="38" rx="4" fill="#9FC4E8"/>`).join("")).join("")}<rect x="352" y="352" width="76" height="58" fill="${p[3]}"/>${palm(110)}${palm(690)}`;
+    return enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520">${sky}${b}<g font-family="Arial" font-size="15" font-weight="bold" fill="#142C4E" opacity=".5"><text x="770" y="500" text-anchor="end">IMMO LINK — illustration</text></g></svg>`);
+  }
+  function avatar(n,s){ const bg=["#C97712","#142C4E","#2F6BB4","#7A4E8C","#1F8A5B","#C2542E"][s%6];
+    const ini=n.split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+    return enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" fill="${bg}"/><circle cx="48" cy="102" r="42" fill="#ffffff22"/><text x="48" y="58" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="34" fill="#fff">${ini}</text></svg>`);
+  }
+  /* Fallback logo (si logo.png absent) : carré orange + maison bleue + flèche blanche */
+  const LOGO_FB = enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD54F"/><stop offset=".45" stop-color="#FB8C00"/><stop offset="1" stop-color="#F4511E"/></linearGradient><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#42A5F5"/><stop offset="1" stop-color="#0D47A1"/></linearGradient></defs><rect width="64" height="64" rx="14" fill="url(#a)"/><rect x="15" y="13" width="6" height="17" rx="2" fill="url(#b)"/><path d="M32 12 7 32h8v18h12V38h10v12h12V32h8Z" fill="url(#b)"/><g fill="#fff"><rect x="27" y="27" width="5" height="5" rx="1.2"/><rect x="34" y="27" width="5" height="5" rx="1.2"/><rect x="27" y="34" width="5" height="5" rx="1.2"/><rect x="34" y="34" width="5" height="5" rx="1.2"/></g><path d="M8 45c11 8 27 7 37-3l-6-3 15-6-1 16-4-4C38 56 18 56 8 48Z" fill="#fff" opacity=".96"/></svg>`);
+  /* Fallback villa (si maison.jpg absente) */
+  const HOUSE_FB = `<svg viewBox="0 0 520 430" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="hw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EDF2F9"/></linearGradient><linearGradient id="hr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F2B565"/><stop offset="1" stop-color="#E89A36"/></linearGradient><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BFE0F5"/><stop offset="1" stop-color="#8FC1E9"/></linearGradient></defs><ellipse cx="260" cy="400" rx="215" ry="24" fill="#142C4E" opacity=".08"/><rect x="120" y="180" width="280" height="200" rx="14" fill="url(#hw)" stroke="#DCE4EF" stroke-width="2"/><path d="M96 196 L260 74 L424 196Z" fill="url(#hr)"/><path d="M96 196 L260 74 L424 196 L400 196 L260 96 L120 196Z" fill="#D18420" opacity=".5"/><rect x="330" y="92" width="30" height="62" rx="6" fill="#142C4E"/><rect x="150" y="215" width="86" height="72" rx="9" fill="url(#hg)" stroke="#fff" stroke-width="5"/><path d="M193 215 v72 M150 251 h86" stroke="#fff" stroke-width="4"/><rect x="286" y="215" width="86" height="72" rx="9" fill="url(#hg)" stroke="#fff" stroke-width="5"/><path d="M329 215 v72 M286 251 h86" stroke="#fff" stroke-width="4"/><rect x="234" y="288" width="56" height="92" rx="8" fill="#142C4E"/><circle cx="278" cy="336" r="4.5" fill="#E89A36"/><rect x="86" y="352" width="348" height="18" rx="9" fill="#E3EAF3"/><g><circle cx="82" cy="330" r="24" fill="#4E8F52"/><circle cx="66" cy="346" r="17" fill="#66A76B"/><rect x="77" y="348" width="9" height="32" rx="4" fill="#8A6A44"/></g><g><circle cx="446" cy="326" r="27" fill="#4E8F52"/><circle cx="466" cy="346" r="17" fill="#66A76B"/><rect x="441" y="348" width="9" height="32" rx="4" fill="#8A6A44"/></g></svg>`;
+  const ago=d=>new Date(Date.now()-d*864e5).toISOString();
+  const agents=[
+    {id:"a1",role:"agent",email:"kossi@demo.tg",password:"demo1234",full_name:"Kossi AMEGAN",agency:"Agence Horizon Togo",phone:"+22890112233",city:"Lomé",is_verified:true,bio:"Spécialiste de l'immobilier résidentiel à Lomé depuis 2015. Accompagnement complet, documents vérifiés.",created_at:ago(120)},
+    {id:"a2",role:"agent",email:"afi@demo.tg",password:"demo1234",full_name:"Afi MENSAH",agency:"Afi Immobilier",phone:"+22890445566",city:"Lomé",is_verified:true,bio:"Locations meublées et locaux commerciaux sur le Grand Lomé. Réactive et rigoureuse.",created_at:ago(90)},
+    {id:"a3",role:"agent",email:"jd@demo.tg",password:"demo1234",full_name:"Jean-Daniel KOUMAKO",agency:"",phone:"+22890778899",city:"Kpalimé",is_verified:false,bio:"Démarcheur indépendant, terrains et maisons dans la région des Plateaux.",created_at:ago(40)},
+    {id:"a4",role:"agent",email:"salimat@demo.tg",password:"demo1234",full_name:"Salimat OURO-BADI",agency:"Nord Habitat",phone:"+22890223344",city:"Kara",is_verified:true,bio:"Référence pour la location étudiante et les biens professionnels dans la région de la Kara.",created_at:ago(75)}];
+  const client={id:"c1",role:"client",email:"client@demo.tg",password:"demo1234",full_name:"Ama DELA",phone:"+22890001122",city:"Lomé",is_verified:false,created_at:ago(30)};
+  const props=[
+    {id:"p1",agent_id:"a1",title:"Villa moderne de 4 chambres à Baguida",category:"maison",transaction:"vente",city:"Lomé",district:"Baguida",address:"Route de la plage",lat:6.1497,lng:1.2832,price:45000000,surface:320,chambers:4,bathrooms:3,lounges:2,kitchen:"Moderne équipée",garage:true,garden:true,furnished:false,amenities:["Climatisation","Forage","Clôture","Terrasse"],description:"Belle villa neuve dans un quartier calme de Baguida. Quatre grandes chambres autonomes, double salon lumineux, cuisine moderne équipée, jardin arboré et garage deux voitures. Titre foncier disponible.",status:"available",views:326,created_at:ago(4)},
+    {id:"p2",agent_id:"a2",title:"Appartement T3 meublé à Nyékonakpoè",category:"appartement",transaction:"location",city:"Lomé",district:"Nyékonakpoè",address:"Boulevard du 13 Janvier",lat:6.1732,lng:1.2211,price:250000,caution:500000,avance:250000,commission:25000,surface:95,chambers:3,bathrooms:2,lounges:1,kitchen:"Équipée",garage:false,garden:false,furnished:true,amenities:["Meublé","Climatisation","Gardien","Balcon"],description:"Appartement entièrement meublé et climatisé au cœur de Nyékonakpoè. Idéal pour cadres ou expatriés. Proche de toutes commodités.",status:"available",views:512,created_at:ago(2)},
+    {id:"p3",agent_id:"a2",title:"Studio moderne à Adidogomé",category:"studio",transaction:"location",city:"Lomé",district:"Adidogomé",address:"Non loin du marché",price:65000,caution:130000,avance:65000,commission:10000,surface:28,chambers:1,bathrooms:1,lounges:0,kitchen:"Kitchenette",garage:false,garden:false,furnished:false,amenities:["Eau courante","Compteur individuel"],description:"Studio propre et bien ventilé, parfait pour jeune travailleur ou étudiant. Sanitaires intérieurs, compteur électrique individuel.",status:"available",views:198,created_at:ago(6)},
+    {id:"p4",agent_id:"a3",title:"Terrain de 600 m² titré à Agoè",category:"terrain",transaction:"vente",city:"Lomé",district:"Agoè",address:"Agoè Assiyéyé, zone lotie",price:8500000,surface:600,chambers:0,bathrooms:0,lounges:0,kitchen:"",garage:false,garden:false,furnished:false,amenities:["Titré","Borné","Zone lotie"],description:"Parcelle bien délimitée dans un lotissement récent. Titre foncier au nom du vendeur, documents consultables.",status:"available",views:421,created_at:ago(9)},
+    {id:"p5",agent_id:"a2",title:"Boutique aménagée près du Grand Marché",category:"boutique",transaction:"location",city:"Lomé",district:"Bè",address:"Rue du Grand Marché",price:120000,caution:240000,avance:120000,commission:15000,surface:22,chambers:0,bathrooms:1,lounges:0,kitchen:"",garage:false,garden:false,furnished:false,amenities:["Vitrine","Rideau métallique","Zone très passante"],description:"Local commercial idéalement placé pour le commerce de détail. Forte fréquentation quotidienne.",status:"available",views:167,created_at:ago(12)},
+    {id:"p6",agent_id:"a1",title:"Bureau de 80 m² à Tokoin",category:"bureau",transaction:"location",city:"Lomé",district:"Tokoin",address:"Avenue de la chance",price:300000,caution:600000,avance:300000,commission:30000,surface:80,chambers:3,bathrooms:1,lounges:1,kitchen:"Kitchenette",garage:true,garden:false,furnished:true,amenities:["Climatisation","Parking","Fibre optique"],description:"Espace de bureau prêt à l'emploi : trois pièces climatisées, salle de réunion, fibre optique et parking privé.",status:"available",views:289,created_at:ago(8)},
+    {id:"p7",agent_id:"a3",title:"Maison familiale de 3 chambres à Kpalimé",category:"maison",transaction:"vente",city:"Kpalimé",district:"Kpodzi",address:"Quartier Kpodzi",price:18000000,surface:210,chambers:3,bathrooms:2,lounges:1,kitchen:"Séparée",garage:false,garden:true,furnished:false,amenities:["Jardin","Vue montagne","Forage"],description:"Maison paisible au pied des montagnes de Kpalimé. Climat agréable, grand jardin arboré, dépendance pour invités.",status:"available",views:243,created_at:ago(15)},
+    {id:"p8",agent_id:"a1",title:"Appartement standing vue mer, bord de mer",category:"appartement",transaction:"location",city:"Lomé",district:"Hédzranawoé",address:"Route des pêches",lat:6.1319,lng:1.2228,price:450000,caution:900000,avance:450000,commission:45000,surface:120,chambers:3,bathrooms:2,lounges:1,kitchen:"Américaine",garage:true,garden:false,furnished:true,amenities:["Vue mer","Meublé","Ascenseur","Gardien 24h/24"],description:"Superbe appartement avec vue dégagée sur l'océan. Finitions haut de gamme, immeuble sécurisé avec générateur et ascenseur.",status:"available",views:678,created_at:ago(1)},
+    {id:"p9",agent_id:"a4",title:"Studio étudiant à Kara",category:"studio",transaction:"location",city:"Kara",district:"Tomdè",address:"Non loin de l'Université",price:35000,caution:70000,avance:35000,commission:5000,surface:20,chambers:1,bathrooms:1,lounges:0,kitchen:"Kitchenette",garage:false,garden:false,furnished:false,amenities:["Eau courante","Proche université"],description:"Studio économique spécialement pensé pour les étudiants. À quelques minutes à pied du campus.",status:"available",views:154,created_at:ago(20)},
+    {id:"p10",agent_id:"a1",title:"Maison neuve duplex à Légbassito",category:"maison",transaction:"vente",city:"Lomé",district:"Légbassito",address:"Derrière la station",lat:6.2105,lng:1.2564,price:32000000,surface:260,chambers:4,bathrooms:3,lounges:2,kitchen:"Moderne",garage:true,garden:false,furnished:false,amenities:["Neuve","Duplex","Forage","Clôture"],description:"Duplex jamais habité, matériaux de qualité. Quatre chambres à l'étage, double salon au rez-de-chaussée.",status:"available",views:387,created_at:ago(3)},
+    {id:"p11",agent_id:"a2",title:"Appartement 2 chambres à Agbalépédo",category:"appartement",transaction:"location",city:"Lomé",district:"Agbalépédo",address:"Rue des palmiers",price:150000,caution:300000,avance:150000,commission:15000,surface:70,chambers:2,bathrooms:1,lounges:1,kitchen:"Séparée",garage:false,garden:false,furnished:false,amenities:["Eau courante","Balcon"],description:"Appartement confortable dans une cour familiale calme. Deux chambres spacieuses, balcon donnant sur cour.",status:"rented",views:432,created_at:ago(35)},
+    {id:"p12",agent_id:"a1",title:"Villa avec piscine à Doulassamé",category:"maison",transaction:"vente",city:"Lomé",district:"Doulassamé",address:"Zone résidentielle",price:85000000,surface:540,chambers:5,bathrooms:4,lounges:2,kitchen:"Équipée",garage:true,garden:true,furnished:true,amenities:["Piscine","Meublé","Groupe électrogène"],description:"Propriété d'exception : villa entièrement meublée avec piscine, jardin tropical et dépendances.",status:"sold",views:901,created_at:ago(50)}
+  ].map((p,i)=>{p.demo=true;p.images=[{url:scene(p.category,i),is_main:true},{url:scene(p.category,i+2),is_main:false},{url:scene(p.category,i+4),is_main:false}];return p;});
+  function seed(){ let db=null; try{db=JSON.parse(localStorage.getItem("il_db_v2"));}catch(e){}
+    if(!db||!db.properties){ db={users:[...agents,client],session:null,properties:props,
+      favorites:[{user_id:"c1",property_id:"p2",created_at:ago(2)},{user_id:"c1",property_id:"p8",created_at:ago(1)}],
+      contacts:[{id:"ct1",user_id:"c1",property_id:"p2",agent_id:"a2",type:"whatsapp",created_at:ago(1)}],
+      visits:[{id:"v1",client_id:"c1",property_id:"p8",agent_id:"a1",desired_date:new Date(Date.now()+3*864e5).toISOString().slice(0,10),desired_time:"10:00",message:"Je souhaite visiter cet appartement.",status:"en_attente",proposal:"",created_at:ago(1)}],
+      subs:{},verifs:[],reports:[],messages:[],views_log:[]};
+      localStorage.setItem("il_db_v2",JSON.stringify(db)); }
+    return db; }
+  const save=db=>localStorage.setItem("il_db_v2",JSON.stringify(db));
+  const CITIES=["Lomé","Aného","Kpalimé","Atakpamé","Sokodé","Kara","Dapaong","Tsévié","Vogan","Badou"];
+  return {seed,save,avatar,scene,LOGO_FB,HOUSE_FB,CITIES};
+})();
+
+/* ================= UI ================= */
+const UI=(()=>{
+  const I={home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/><path d="M10 21v-6h4v6"/>',compass:'<circle cx="12" cy="12" r="9"/><path d="m14.8 9.2-1.9 4.4-4.4 1.9 1.9-4.4z"/>',heart:'<path d="M12 20.3 4.9 13a4.6 4.6 0 0 1 6.5-6.5l.6.6.6-.6A4.6 4.6 0 0 1 19.1 13Z"/>',user:'<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c1.2-3.4 4-5 7.5-5s6.3 1.6 7.5 5"/>',search:'<circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.8-3.8"/>',sliders:'<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h13"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="19" cy="18" r="2"/>',pin:'<path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/>',bed:'<path d="M3 18V7"/><path d="M3 14h18v4"/><path d="M21 14v-3a2 2 0 0 0-2-2h-9v5"/><circle cx="7" cy="10" r="2"/>',bath:'<path d="M4 12h16v2a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5Z"/><path d="M6 12V5.5A2.5 2.5 0 0 1 8.5 3c1.2 0 2.1.8 2.4 1.9"/><path d="M6 21v-2M18 21v-2"/>',area:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v5H4"/>',phone:'<path d="M6.8 3.5c.5 0 1 .3 1.2.8l1.3 2.8c.3.6.1 1.3-.4 1.7l-1.2 1a12.6 12.6 0 0 0 6.5 6.5l1-1.2c.4-.5 1.1-.7 1.7-.4l2.8 1.3c.5.2.8.7.8 1.2v2.3c0 .9-.7 1.6-1.6 1.5C10 20.4 3.6 14 3 5.1c-.1-.9.6-1.6 1.5-1.6Z"/>',wa:'<path fill="currentColor" stroke="none" d="M17.5 14.4c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07a7.9 7.9 0 0 1-2.4-1.48 8.9 8.9 0 0 1-1.66-2.07c-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.1 4.49.71.3 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.08 1.76-.72 2.01-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35M12.08 21.8h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.9-9.88a9.83 9.83 0 0 1 6.99 2.9 9.82 9.82 0 0 1 2.9 7c0 5.44-4.45 9.87-9.9 9.87m8.42-18.3A11.8 11.8 0 0 0 12.08 0C5.53 0 .19 5.34.19 11.89c0 2.1.55 4.14 1.59 5.94L.09 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.16-3.5-8.41"/>',calendar:'<rect x="4" y="5" width="16" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M4 10.5h16"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/>',check:'<path d="m4.5 12.5 5 5 10-11"/>',x:'<path d="m6 6 12 12M18 6 6 18"/>',eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',chart:'<path d="M4 20h16"/><rect x="6" y="11" width="3.2" height="9" rx="1"/><rect x="11" y="6" width="3.2" height="14" rx="1"/><rect x="16" y="9" width="3.2" height="11" rx="1"/>',building:'<rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M9 7.5h2M13 7.5h2M9 11h2M13 11h2M9 14.5h2M13 14.5h2"/><path d="M10.5 20.5v-3h3v3"/>',shield:'<path d="M12 3 5 5.8v5.4c0 4.4 3 7.6 7 9.3 4-1.7 7-4.9 7-9.3V5.8Z"/><path d="m9 11.7 2.2 2.2L15.3 9.5"/>',camera:'<path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.6l1.4-2h5l1.4 2h1.6A2.5 2.5 0 0 1 20 8.5V18a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 18Z"/><circle cx="12" cy="13" r="3.4"/>',edit:'<path d="M4 20h4L20 8l-4-4L4 16Z"/><path d="m13.5 6.5 4 4"/>',trash:'<path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"/><path d="M10.5 11v5M13.5 11v5"/>',logout:'<path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M3 12h11M10 8l4 4-4 4"/>',bell:'<path d="M6 9.5a6 6 0 0 1 12 0c0 5 1.7 6 1.7 6H4.3S6 14.5 6 9.5Z"/><path d="M10 19a2.2 2.2 0 0 0 4 0"/>',arrowr:'<path d="M4 12h16M13 5l7 7-7 7"/>',arrowl:'<path d="M20 12H4M11 5l-7 7 7 7"/>',key:'<circle cx="8" cy="15" r="4.2"/><path d="m11 12 8.5-8.5M16.5 6.5 19 9M14 9l2 2"/>',menu:'<rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/>',alert:'<path d="M12 4 2.8 19.5h18.4Z"/><path d="M12 10v4.5M12 17.2v.3"/>',upload:'<path d="M12 16V5M7.5 9 12 4.5 16.5 9"/><path d="M4.5 16.5v2A2.5 2.5 0 0 0 7 21h10a2.5 2.5 0 0 0 2.5-2.5v-2"/>',doc:'<path d="M6.5 3h8L19 7.5V21h-12.5Z"/><path d="M14 3v5h5"/><path d="M9.5 13h5M9.5 16.5h5"/>',card:'<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18"/><path d="M7 15.5h4"/>',gear:'<circle cx="12" cy="12" r="3.1"/><path d="M12 2.8v3M12 18.2v3M4.4 7.6l2.6 1.5M17 14.9l2.6 1.5M2.8 12h3M18.2 12h3M4.4 16.4 7 14.9M17 9.1l2.6-1.5"/>',store:'<path d="M4 9 5.3 4h13.4L20 9"/><path d="M4 9h16v2.2a2.6 2.6 0 0 1-5.2 0 2.7 2.7 0 0 1-5.6 0A2.6 2.6 0 0 1 4 11.2Z"/><path d="M5.5 13.5V20h13v-6.5"/><path d="M10 20v-4h4v4"/>',brief:'<rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5"/><path d="M3.5 12.5h17"/>',tree:'<path d="M12 21v-5"/><path d="M8 16h8l-2.5-4H16l-2.6-4h1.6L12 3 9 8h1.6L8 12h2.5Z"/>',door:'<path d="M6.5 21V4.5A1.5 1.5 0 0 1 8 3h8a1.5 1.5 0 0 1 1.5 1.5V21"/><path d="M4 21h16"/><circle cx="14.2" cy="12.5" r="1.1"/>',plus:'<path d="M12 5v14M5 12h14"/>',send:'<path d="m4 11 16-7-5 16-3.5-6.5Z"/><path d="M11.5 13.5 20 4"/>'};
+  const icon=(n,s=20)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]||""}</svg>`;
+  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const fmt=n=>new Intl.NumberFormat("fr-FR").format(n||0);
+  const price=(n,tx)=>fmt(n)+" FCFA"+(tx==="location"?" <small>/ mois</small>":"");
+  const dfr=i=>{try{return new Date(i).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}catch(e){return "—"}};
+  const timeAgo=i=>{const d=(Date.now()-new Date(i).getTime())/1000;if(d<3600)return "à l'instant";if(d<86400)return "il y a "+Math.floor(d/3600)+" h";if(d<2592000)return "il y a "+Math.floor(d/86400)+" j";return "le "+dfr(i)};
+  const uid=()=>"id"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  function toast(m,t="info",ms=3800){const e=document.createElement("div");e.className="toast "+t;
+    e.innerHTML=icon(t==="success"?"check":t==="error"?"alert":"bell",19)+`<span>${esc(m)}</span>`;
+    document.getElementById("toasts").appendChild(e);setTimeout(()=>{e.classList.add("out");setTimeout(()=>e.remove(),320)},ms);}
+  function modal(html,o={}){const r=document.getElementById("mroot");r.hidden=false;
+    r.innerHTML=`<div class="moverlay" data-close></div><div class="mpanel" role="dialog" aria-modal="true"><div class="mhead"><h3>${esc(o.title||"")}</h3><button class="mclose" data-close aria-label="Fermer">${icon("x",17)}</button></div><div class="mbody">${html}</div></div>`;
+    document.body.style.overflow="hidden";r.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",closeModal));return r;}
+  function closeModal(){const r=document.getElementById("mroot");r.hidden=true;r.innerHTML="";document.body.style.overflow="";}
+  function confirm(m,f,o={}){modal(`<p style="color:var(--mut);font-weight:600;margin-bottom:20px">${esc(m)}</p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-ghost btn-sm" data-close>Annuler</button><button class="btn ${o.danger?"btn-danger":"btn-primary"} btn-sm" id="cfY">${esc(o.yes||"Confirmer")}</button></div>`,{title:o.title||"Confirmation"});
+    document.getElementById("cfY").onclick=()=>{closeModal();f();};}
+  const bind=(s,e,f)=>document.querySelectorAll(s).forEach(el=>el.addEventListener(e,f));
+  function reveal(){const els=document.querySelectorAll(".rv:not(.in)");if(!("IntersectionObserver" in window)){els.forEach(e=>e.classList.add("in"));return;}
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}}),{threshold:.12});els.forEach(e=>io.observe(e));}
+  function countUp(){document.querySelectorAll("[data-count]").forEach(el=>{const t=+el.dataset.count;
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches){el.textContent=fmt(t);return;}
+    const t0=performance.now();(function s(x){const p=Math.min((x-t0)/1100,1),e=1-Math.pow(1-p,3);el.textContent=fmt(Math.round(t*e));if(p<1)requestAnimationFrame(s);})(t0);});}
+  const skel=n=>Array.from({length:n},()=>`<div class="sk-card"><div class="sk sk-img"></div><div class="sk sk-line" style="width:70%"></div><div class="sk sk-line" style="width:45%"></div></div>`).join("");
+  const empty=(i,t,s,c)=>`<div class="empty">${icon(i,74)}<h3>${esc(t)}</h3><p>${esc(s)}</p>${c||""}</div>`;
+  function loadFile(f,max=1280){return new Promise((res,rej)=>{const img=new Image(),rd=new FileReader();
+    rd.onload=()=>{img.onload=()=>{const sc=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement("canvas");
+      c.width=img.width*sc;c.height=img.height*sc;c.getContext("2d").drawImage(img,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.82));};
+      img.onerror=rej;img.src=rd.result;};rd.onerror=rej;rd.readAsDataURL(f);});}
+  function tilt(ns){if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+    ns.forEach(el=>{el.addEventListener("pointermove",e=>{const r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.transform=`rotateY(${x*10}deg) rotateX(${-y*8}deg) translateY(-4px)`;});
+      el.addEventListener("pointerleave",()=>{el.style.transform="";});});}
+  return {icon,esc,fmt,price,dfr,timeAgo,uid,toast,modal,closeModal,confirm,bind,reveal,countUp,skel,empty,loadFile,tilt};
+})();
+
+/* ================= REPOSITORY (Supabase ou démo) ================= */
+const Repo=(()=>{
+  const live=DB.live, sb=DB.client; let db=null; if(!live) db=Demo.seed();
+  const persist=()=>{if(!live)Demo.save(db);};
+  const CATS=[{id:"maison",label:"Maisons",icon:"home"},{id:"appartement",label:"Appartements",icon:"building"},{id:"studio",label:"Studios",icon:"door"},{id:"terrain",label:"Terrains",icon:"tree"},{id:"boutique",label:"Boutiques",icon:"store"},{id:"bureau",label:"Bureaux",icon:"brief"},{id:"local",label:"Locaux commerciaux",icon:"menu"}];
+  const catLabel=id=>(CATS.find(c=>c.id===id)||{}).label||id;
+  const STATUS={pending:"En attente de validation",available:"Disponible",negotiation:"En négociation",rented:"Loué",sold:"Vendu",expired:"Expiré",refused:"Refusé"};
+  const VSTATUS={en_attente:"En attente",acceptee:"Acceptée",refusee:"Refusée",reportee:"Reportée",terminee:"Terminée"};
+  const normPhone=p=>{let d=String(p||"").replace(/\D/g,"");if(d.startsWith("228"))d=d.slice(3);return d.length===8?"+228"+d:(p||"");};
+  const waLink=(p,t)=>`https://wa.me/${normPhone(p).replace("+","")}?text=${encodeURIComponent("Bonjour, je vous contacte depuis IMMO LINK concernant votre annonce immobilière"+(t?` « ${t} »`:"")+". Le bien est-il toujours disponible ?")}`;
+  const telLink=p=>"tel:"+normPhone(p);
+  /* --- auth --- */
+  async function session(){ if(live){const{data}=await sb.auth.getSession();if(!data.session)return null;
+      const{data:pr}=await sb.from("profiles").select("*").eq("id",data.session.user.id).single();return pr||null;}
+    return db.session?db.users.find(u=>u.id===db.session)||null:null; }
+  async function signup(p){ if(live){const{error}=await sb.auth.signUp({email:p.email,password:p.password,options:{data:{full_name:p.full_name,phone:normPhone(p.phone),role:p.role,city:p.city||"",agency_name:p.agency_name||""}}});return error?{ok:false,error:error.message}:{ok:true};}
+    const em=p.email.trim().toLowerCase(); if(db.users.some(u=>u.email===em))return{ok:false,error:"Un compte existe déjà avec cet e-mail."};
+    const u={id:UI.uid(),role:p.role,email:em,password:p.password,full_name:p.full_name.trim(),phone:normPhone(p.phone),agency_name:p.agency_name||"",city:p.city||"",bio:"",avatar_url:"",is_verified:false,created_at:new Date().toISOString()};
+    db.users.push(u);db.session=u.id;persist();return{ok:true}; }
+  async function signin(e,p){ if(live){const{error}=await sb.auth.signInWithPassword({email:e,password:p});return error?{ok:false,error:"E-mail ou mot de passe incorrect."}:{ok:true};}
+    const u=db.users.find(x=>x.email===e.trim().toLowerCase()&&x.password===p);if(!u)return{ok:false,error:"E-mail ou mot de passe incorrect."};
+    db.session=u.id;persist();return{ok:true}; }
+  async function signout(){ live?await sb.auth.signOut():(db.session=null,persist()); }
+  async function updProf(id,f){ if(live){const{error}=await sb.from("profiles").update(f).eq("id",id);return{ok:!error,error:error&&error.message};}
+    const u=db.users.find(x=>x.id===id);if(!u)return{ok:false};Object.assign(u,f);persist();return{ok:true}; }
+  async function pwd(id,cur,nx){ if(live){const{error}=await sb.auth.updateUser({password:nx});return{ok:!error,error:error&&error.message};}
+    const u=db.users.find(x=>x.id===id);if(!u||u.password!==cur)return{ok:false,error:"Mot de passe actuel incorrect."};u.password=nx;persist();return{ok:true}; }
+  /* --- annonces --- */
+  const hyd=r=>{const im=(r.property_images||[]).sort((a,b)=>(b.is_main?1:0)-(a.is_main?1:0)||a.position-b.position);return{...r,images:im.length?im.map(i=>({url:i.url,is_main:i.is_main})):[],_agent:r.agent};};
+  async function list(f={}){ if(live){let q=sb.from("properties").select("*, property_images(*), agent:profiles!properties_agent_id_fkey(*)",{count:"exact"}).eq("status","available");
+      if(f.tx)q=q.eq("transaction",f.tx); if(f.cat)q=q.eq("category",f.cat); if(f.city)q=q.ilike("city","%"+f.city+"%");
+      if(f.q)q=q.or(`title.ilike.%${f.q}%,district.ilike.%${f.q}%`); if(f.max)q=q.lte("price",f.max); if(f.chambers)q=q.gte("chambers",f.chambers);
+      const o=f.sort==="price_asc"?["price",{ascending:true}]:f.sort==="price_desc"?["price",{ascending:false}]:f.sort==="oldest"?["created_at",{ascending:true}]:["created_at",{ascending:false}];
+      q=q.order(...o); const pg=f.page||1,from=(pg-1)*CONFIG.PAGE_SIZE; q=q.range(from,from+CONFIG.PAGE_SIZE-1);
+      const{data,count,error}=await q; if(error)throw error; return{items:(data||[]).map(hyd),total:count||0}; }
+    let it=db.properties.filter(p=>p.status==="available");
+    if(f.tx)it=it.filter(p=>p.transaction===f.tx); if(f.cat)it=it.filter(p=>p.category===f.cat);
+    if(f.city)it=it.filter(p=>p.city.toLowerCase().includes(f.city.toLowerCase()));
+    if(f.q){const q=f.q.toLowerCase();it=it.filter(p=>(p.title+p.district+p.city).toLowerCase().includes(q));}
+    if(f.max)it=it.filter(p=>p.price<=+f.max); if(f.chambers)it=it.filter(p=>p.chambers>=+f.chambers);
+    const s=f.sort||"recent"; it.sort((a,b)=>s==="price_asc"?a.price-b.price:s==="price_desc"?b.price-a.price:s==="oldest"?new Date(a.created_at)-new Date(b.created_at):new Date(b.created_at)-new Date(a.created_at));
+    const total=it.length,from=((f.page||1)-1)*CONFIG.PAGE_SIZE; return{items:it.slice(from,from+CONFIG.PAGE_SIZE),total}; }
+  async function get(id){ if(live){const{data}=await sb.from("properties").select("*, property_images(*), agent:profiles!properties_agent_id_fkey(*)").eq("id",id).single();return data?hyd(data):null;}
+    return db.properties.find(p=>p.id===id)||null; }
+  async function similar(p){const r=await list({cat:p.category,tx:p.transaction});return r.items.filter(x=>x.id!==p.id).slice(0,3);}
+  async function byAgent(a){ if(live){const{data}=await sb.from("properties").select("*, property_images(*)").eq("agent_id",a).eq("status","available").order("created_at",{ascending:false});return(data||[]).map(hyd);}
+    return db.properties.filter(p=>p.agent_id===a&&p.status==="available"); }
+  async function mine(a){ if(live){const{data}=await sb.from("properties").select("*, property_images(*)").eq("agent_id",a).order("created_at",{ascending:false});return(data||[]).map(hyd);}
+    return db.properties.filter(p=>p.agent_id===a).sort((x,y)=>new Date(y.created_at)-new Date(x.created_at)); }
+  async function save(d,imgs,agentId){ if(live){const{data:row,error}=d.id?await sb.from("properties").update(d).eq("id",d.id).eq("agent_id",agentId).select().single():await sb.from("properties").insert({...d,agent_id:agentId,status:"pending"}).select().single();
+      if(error)return{ok:false,error:error.message};
+      if(imgs&&imgs.length){const rows=[];for(let i=0;i<imgs.length;i++){const path=`${agentId}/${Date.now()}-${i}.jpg`;
+        const bin=await fetch(imgs[i].url).then(r=>r.blob());await sb.storage.from("property-media").upload(path,bin);
+        const{data:pub}=sb.storage.from("property-media").getPublicUrl(path);rows.push({property_id:row.id,url:pub.publicUrl,position:i,is_main:!!imgs[i].is_main});}
+        await sb.from("property_images").insert(rows);} return{ok:true,id:row.id}; }
+    const id=d.id||UI.uid();
+    const p={...d,id,agent_id:agentId,demo:true,status:d.status||"available",views:d.views||0,created_at:d.created_at||new Date().toISOString(),images:imgs.map((im,i)=>({url:im.url,is_main:!!im.is_main}))};
+    const ix=db.properties.findIndex(x=>x.id===id); ix>=0?db.properties[ix]={...db.properties[ix],...p}:db.properties.unshift(p);
+    persist();return{ok:true,id}; }
+  async function setStatus(id,st){ if(live){await sb.from("properties").update({status:st}).eq("id",id);return;}
+    const p=db.properties.find(x=>x.id===id);if(p){p.status=st;persist();} }
+  async function remove(id){ if(live){await sb.from("properties").delete().eq("id",id);return;}
+    db.properties=db.properties.filter(p=>p.id!==id);db.favorites=db.favorites.filter(f=>f.property_id!==id);persist(); }
+  function trackView(id){ if(live){sb.rpc("increment_views",{pid:id}).then(()=>{});return;}
+    const p=db.properties.find(x=>x.id===id);if(p){p.views=(p.views||0)+1;db.views_log.push({pid:id,at:new Date().toISOString()});
+      if(db.views_log.length>800)db.views_log=db.views_log.slice(-800);persist();} }
+  const recent=()=>{try{return JSON.parse(localStorage.getItem("il_recent")||"[]")}catch(e){return[]}};
+  function pushRecent(id){let r=recent().filter(x=>x!==id);r.unshift(id);localStorage.setItem("il_recent",JSON.stringify(r.slice(0,6)));}
+  /* --- favoris / contacts / visites --- */
+  async function favs(u){ if(live){const{data}=await sb.from("favorites").select("properties(*, property_images(*))").eq("user_id",u).order("created_at",{ascending:false});return(data||[]).map(d=>d.properties).filter(Boolean).map(hyd);}
+    const ids=db.favorites.filter(f=>f.user_id===u).map(f=>f.property_id);return db.properties.filter(p=>ids.includes(p.id)); }
+  async function favToggle(u,pid){ if(live){const{data:ex}=await sb.from("favorites").select("user_id").eq("user_id",u).eq("property_id",pid).maybeSingle();
+      if(ex)await sb.from("favorites").delete().eq("user_id",u).eq("property_id",pid);else await sb.from("favorites").insert({user_id:u,property_id:pid});return!ex;}
+    const ix=db.favorites.findIndex(f=>f.user_id===u&&f.property_id===pid);
+    if(ix>=0){db.favorites.splice(ix,1);persist();return false;}
+    db.favorites.push({user_id:u,property_id:pid,created_at:new Date().toISOString()});persist();return true; }
+  async function favSet(u){ if(live){const{data}=await sb.from("favorites").select("property_id").eq("user_id",u);return new Set((data||[]).map(d=>d.property_id));}
+    return new Set(db.favorites.filter(f=>f.user_id===u).map(f=>f.property_id)); }
+  async function logContact(u,p,t){ if(live){await sb.from("contact_events").insert({user_id:u,property_id:p.id,agent_id:p.agent_id,type:t});return;}
+    db.contacts.unshift({id:UI.uid(),user_id:u,property_id:p.id,agent_id:p.agent_id,type:t,created_at:new Date().toISOString()});persist(); }
+  async function contacts(u){ if(live){const{data}=await sb.from("contact_events").select("*, properties(title, city)").eq("user_id",u).order("created_at",{ascending:false});return data||[];}
+    return db.contacts.filter(c=>c.user_id===u).map(c=>({...c,properties:db.properties.find(p=>p.id===c.property_id)||{title:"Annonce supprimée",city:""}})); }
+  async function createVisit(u,p,v){ if(live){const{error}=await sb.from("visit_requests").insert({client_id:u,property_id:p.id,agent_id:p.agent_id,desired_date:v.date,desired_time:v.time,message:v.message});return{ok:!error,error:error&&error.message};}
+    db.visits.unshift({id:UI.uid(),client_id:u,property_id:p.id,agent_id:p.agent_id,desired_date:v.date,desired_time:v.time,message:v.message,status:"en_attente",proposal:"",created_at:new Date().toISOString()});persist();return{ok:true}; }
+  async function visits(u,role){ if(live){let q=sb.from("visit_requests").select("*, properties(title, city, transaction, price, property_images(*))").order("created_at",{ascending:false});
+      q=role==="agent"?q.eq("agent_id",u):q.eq("client_id",u);const{data}=await q;return data||[];}
+    return db.visits.filter(v=>role==="agent"?v.agent_id===u:v.client_id===u)
+      .map(v=>({...v,properties:db.properties.find(p=>p.id===v.property_id)||null,client:db.users.find(x=>x.id===v.client_id)||null})); }
+  async function updVisit(id,st,prop=""){ if(live){await sb.from("visit_requests").update({status:st,proposal:prop}).eq("id",id);return;}
+    const v=db.visits.find(x=>x.id===id);if(v){v.status=st;v.proposal=prop;persist();} }
+  /* --- démarcheurs / stats / divers --- */
+  async function agents(){ if(live){const{data}=await sb.from("profiles").select("id,full_name,agency_name,city,bio,is_verified,avatar_url").eq("role","agent");
+      const{data:ps}=await sb.from("properties").select("id,agent_id");return(data||[]).map(a=>({...a,nb:(ps||[]).filter(p=>p.agent_id===a.id).length}));}
+    return db.users.filter(u=>u.role==="agent").map(a=>({...a,nb:db.properties.filter(p=>p.agent_id===a.id&&p.status==="available").length})); }
+  async function agent(id){ if(live){const{data}=await sb.from("profiles").select("*").eq("id",id).single();return data;}
+    return db.users.find(u=>u.id===id&&u.role==="agent")||null; }
+  async function stats(a){ if(live){const[ps,ct,vs,fa]=await Promise.all([sb.from("properties").select("id,views").eq("agent_id",a),
+      sb.from("contact_events").select("id").eq("agent_id",a),sb.from("visit_requests").select("id").eq("agent_id",a),
+      sb.from("favorites").select("id,property_id,properties!inner(agent_id)").eq("properties.agent_id",a)]);
+      const L=ps.data||[];return{views:L.reduce((s,p)=>s+(p.views||0),0),active:L.length,contacts:(ct.data||[]).length,visits:(vs.data||[]).length,favs:(fa.data||[]).length,series:[]};}
+    const m=db.properties.filter(p=>p.agent_id===a),ids=new Set(m.map(p=>p.id));
+    const series=Array.from({length:7},(_,i)=>{const d=new Date(Date.now()-(6-i)*864e5),k=d.toISOString().slice(0,10);
+      return{label:d.toLocaleDateString("fr-FR",{weekday:"short"}),n:db.views_log.filter(l=>ids.has(l.pid)&&l.at.slice(0,10)===k).length};});
+    return{views:m.reduce((s,p)=>s+(p.views||0),0),active:m.filter(p=>p.status==="available").length,
+      contacts:db.contacts.filter(c=>m.some(p=>p.id===c.property_id)).length,visits:db.visits.filter(v=>v.agent_id===a).length,
+      favs:db.favorites.filter(f=>ids.has(f.property_id)).length,series}; }
+  async function sub(u){ if(live){const{data}=await sb.from("subscriptions").select("*").eq("user_id",u).order("created_at",{ascending:false}).limit(1);return(data||[])[0]||{plan:"decouverte",status:"active"};}
+    return db.subs[u]||{plan:"decouverte",status:"active"}; }
+  async function setSub(u,p){ const s={plan:p,status:p==="decouverte"?"active":"pending_payment",started_at:new Date().toISOString()};
+    if(live){await sb.from("subscriptions").insert({user_id:u,...s});return s;} db.subs[u]=s;persist();return s; }
+  async function verify(a,info){ if(live){const path=`${a}/${Date.now()}-doc`;if(info.dataUrl)await sb.storage.from("verification-docs").upload(path,await fetch(info.dataUrl).then(r=>r.blob()));
+      await sb.from("agent_verifications").insert({agent_id:a,doc_url:path,id_number:info.id_number,status:"pending"});return{ok:true};}
+    db.verifs=db.verifs.filter(v=>v.agent_id!==a);db.verifs.push({agent_id:a,id_number:info.id_number,file_name:info.file_name,status:"pending",created_at:new Date().toISOString()});persist();return{ok:true}; }
+  const verifOf=a=>live?null:(db.verifs.find(v=>v.agent_id===a)||null);
+  function report(pid,r){ live?sb.from("reports").insert({property_id:pid,reason:r}):(db.reports.push({property_id:pid,reason:r,created_at:new Date().toISOString()}),persist()); }
+  function message(m){ live?sb.from("contact_messages").insert(m):(db.messages.push({...m,created_at:new Date().toISOString()}),persist()); }
+  return {live,CATS,catLabel,STATUS,VSTATUS,normPhone,waLink,telLink,session,signup,signin,signout,updProf,pwd,
+    list,get,similar,byAgent,mine,save,setStatus,remove,trackView,recent,pushRecent,favs,favToggle,favSet,
+    logContact,contacts,createVisit,visits,updVisit,agents,agent,stats,sub,setSub,verify,verifOf,report,message,cities:()=>Demo.CITIES};
+})();
+
+/* ================= ROUTER ================= */
+const Router=(()=>{const routes=[];
+  const on=(re,h,g)=>routes.push({re,h,g});
+  const parse=()=>{const h=location.hash.replace(/^#\/?/,"")||"";const[pp,qp]=h.split("?");
+    const seg=pp.split("/").filter(Boolean).map(decodeURIComponent);const q={};
+    if(qp)qp.split("&").forEach(kv=>{const[k,v]=kv.split("=");if(k)q[decodeURIComponent(k)]=decodeURIComponent(v||"");});return{seg,q};};
+  async function resolve(){const{seg,q}=parse();
+    for(const r of routes){const m=seg.join("/").match(r.re);
+      if(m){ if(r.g){const rd=await r.g();if(rd){location.hash=rd;return;}}
+        const app=document.getElementById("app");app.classList.remove("page-fade");void app.offsetWidth;app.classList.add("page-fade");
+        await r.h(m,q); scrollTo({top:0,behavior:"instant"}); highlight(seg[0]||"");
+        document.getElementById("plusMenu").classList.remove("open");
+        document.getElementById("plusBtn").setAttribute("aria-expanded","false");
+        UI.reveal();UI.countUp(); return; }}
+    document.getElementById("app").innerHTML=UI.empty("compass","Page introuvable","Cette page n'existe pas ou a été déplacée.",`<a class="btn btn-primary" href="#/">Retour à l'accueil</a>`);}
+  function highlight(f){const map={"":"home",explorer:"explore",location:"explore",vente:"explore",categorie:"explore",favoris:"fav",profil:"profile",connexion:"profile",inscription:"profile",espace:"profile"};
+    const k=map[f]||"";document.querySelectorAll("[data-nav]").forEach(a=>a.classList.toggle("active",a.dataset.nav===k));}
+  const start=()=>{addEventListener("hashchange",resolve);resolve();};
+  return{on,start,parse};})();
+
+/* ================= VUES PUBLIQUES ================= */
+const Views=(()=>{const{icon:ic,esc,price,fmt,dfr,timeAgo}=UI;
+  function propCard(p){const img=(p.images&&p.images[0]&&p.images[0].url)||"";const fav=App.fav.has(p.id);
+    return `<article class="pcard rv" data-goto="#/bien/${p.id}" tabindex="0" role="link" aria-label="${esc(p.title)}">
+      <div class="pcard-img"><img src="${img}" alt="${esc(p.title)}" loading="lazy">
+        ${p.demo&&!Repo.live?'<span class="demo-tag">Démo</span>':""}
+        <span class="pcard-status"><span class="badge ${p.transaction==="location"?"b-orange":"b-navy"}">${p.transaction==="location"?"Location":"Vente"}</span></span>
+        <button class="fav-btn ${fav?"on":""}" data-fav="${p.id}" aria-label="Ajouter aux favoris">${ic("heart",19)}</button></div>
+      <div class="pcard-body"><div class="pcard-top"><span class="pcard-cat">${esc(Repo.catLabel(p.category))}</span>
+        <span class="pcard-price">${price(p.price,p.transaction)}</span></div>
+        <h3 class="pcard-title">${esc(p.title)}</h3>
+        <div class="pcard-loc">${ic("pin",14)} ${esc(p.district?p.district+" · ":"")}${esc(p.city)}</div>
+        <div class="pcard-meta">${p.chambers?`<span>${ic("bed",15)} ${p.chambers} ch.</span>`:""}${p.bathrooms?`<span>${ic("bath",15)} ${p.bathrooms} s.d.b</span>`:""}${p.surface?`<span>${ic("area",15)} ${fmt(p.surface)} m²</span>`:""}</div>
+      </div></article>`;}
+  function agentFrame(a){return `<div class="agent-frame rv" data-goto="#/demarcheur/${a.id}">
+      ${a.is_verified?'<span class="ribbon">Vérifié</span>':""}
+      <div class="avatar"><img src="${a.avatar_url||Demo.avatar(a.full_name,a.full_name.length)}" alt=""></div>
+      <div class="agent-name">${esc(a.full_name)} ${a.is_verified?ic("shield",16):""}</div>
+      <div class="agent-agency">${esc(a.agency_name||"Démarcheur indépendant")}</div>
+      <div class="agent-city">${ic("pin",13)} ${esc(a.city||"Togo")}</div>
+      <div class="agent-stats"><div><b>${a.nb||0}</b><small>Annonce${(a.nb||0)>1?"s":""}</small></div><div><b>${a.is_verified?"Oui":"Non"}</b><small>Vérification</small></div></div></div>`;}
+
+  async function home(){document.title="IMMO LINK — Trouvez votre prochain chez-vous";
+    document.getElementById("app").innerHTML=`<section class="hero"><div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow rv">Plateforme immobilière · Togo</span>
+        <h1 class="rv rv-d1">Trouvez votre prochain <em>chez-vous</em>.</h1>
+        <p class="hero-sub rv rv-d2">Maisons, appartements, studios, terrains et locaux commerciaux à louer ou à acheter partout au Togo. Des démarcheurs vérifiés, des contacts directs.</p>
+        <div class="search-card rv rv-d3">
+          <div class="tx-toggle"><button type="button" id="txLoc" class="on">Location</button><button type="button" id="txVente">Vente</button></div>
+          <form id="homeSearch" class="search-grid">
+            <div><label class="mini-label" for="hsCity">Ville</label><select class="in" id="hsCity"><option value="">Toutes les villes</option>${Repo.cities().map(c=>`<option>${c}</option>`).join("")}</select></div>
+            <div><label class="mini-label" for="hsQ">Quartier / mot-clé</label><input class="in" id="hsQ" placeholder="Ex. : Baguida, Tokoin…"></div>
+            <div><label class="mini-label" for="hsCat">Type de bien</label><select class="in" id="hsCat"><option value="">Tous les types</option>${Repo.CATS.map(c=>`<option value="${c.id}">${c.label}</option>`).join("")}</select></div>
+            <div><label class="mini-label" for="hsMax">Budget maximum</label><select class="in" id="hsMax"><option value="">Sans limite</option><option value="50000">50 000 FCFA</option><option value="100000">100 000 FCFA</option><option value="250000">250 000 FCFA</option><option value="500000">500 000 FCFA</option><option value="10000000">10 millions FCFA</option><option value="50000000">50 millions FCFA</option></select></div>
+            <div class="sg-full"><button class="btn btn-primary btn-lg btn-block" type="submit">${ic("search",20)} Rechercher un bien</button></div>
+          </form></div></div>
+      <div class="hero-art rv rv-d2"><div class="house-wrap" id="houseWrap">
+        <img id="heroImg" src="maison.jpg" alt="Maison moderne au Togo">
+        <div class="house-shadow"></div>
+        <div class="float-chip chip-1">${ic("pin",19)} Lomé · Baguida</div>
+        <div class="float-chip chip-2">${ic("shield",19)} Démarcheur vérifié</div>
+        <div class="float-chip chip-3"><span class="chip-dot"></span> 250 000 FCFA / mois</div>
+      </div></div></div></section>
+    <section class="section"><div class="container">
+      <div class="sec-head rv"><div><p class="sec-kicker">Catégories</p><h2 class="sec-title">Que cherchez-vous ?</h2></div>
+      <a class="sec-link" href="#/explorer">Tout explorer ${ic("arrowr",17)}</a></div>
+      <div class="cat-row" id="catRow"><div class="sk" style="height:120px;grid-column:1/-1"></div></div></div></section>
+    <section class="section alt"><div class="container">
+      <div class="sec-head rv"><div><p class="sec-kicker">Nouveautés</p><h2 class="sec-title">Annonces récentes</h2></div>
+      <a class="sec-link" href="#/explorer">Voir tout ${ic("arrowr",17)}</a></div>
+      <div class="p-grid" id="recentGrid">${UI.skel(3)}</div></div></section>
+    <section class="section"><div class="container">
+      <div class="sec-head rv"><div><p class="sec-kicker">Les plus consultées</p><h2 class="sec-title">Annonces populaires</h2></div></div>
+      <div class="p-grid" id="popGrid">${UI.skel(3)}</div></div></section>
+    <section class="section alt"><div class="container">
+      <div class="sec-head rv"><div><p class="sec-kicker">Confiance</p><h2 class="sec-title">Démarcheurs vérifiés</h2></div>
+      <a class="sec-link" href="#/demarcheurs">Tous les démarcheurs ${ic("arrowr",17)}</a></div>
+      <div class="agents-row" id="agentsRow"><div class="sk" style="height:220px;grid-column:1/-1"></div></div></div></section>
+    <section class="section"><div class="container">
+      <div class="sec-head rv"><div><p class="sec-kicker">Simple et direct</p><h2 class="sec-title">Comment ça marche ?</h2></div></div>
+      <div class="steps">
+        <div class="step rv"><span class="step-ic">${ic("search",22)}</span><div class="step-num">01</div><h3>Recherchez</h3><p>Filtrez par ville, quartier, type de bien et budget. Chaque annonce affiche le prix réel en FCFA.</p></div>
+        <div class="step rv rv-d1"><span class="step-ic">${ic("calendar",22)}</span><div class="step-num">02</div><h3>Visitez</h3><p>Contactez le démarcheur sur WhatsApp, appelez-le directement ou demandez une visite en quelques secondes.</p></div>
+        <div class="step rv rv-d2"><span class="step-ic">${ic("key",22)}</span><div class="step-num">03</div><h3>Installez-vous</h3><p>Négociez, signez et emménagez. Les démarcheurs vérifiés affichent un badge après contrôle de leurs justificatifs.</p></div>
+      </div></div></section>
+    <section class="section" style="padding-top:0"><div class="container">
+      <div class="cta-band rv"><div><h2>Vous êtes démarcheur immobilier ?</h2>
+        <p>Publiez vos biens, touchez des milliers de chercheurs au Togo et gérez vos demandes de visite depuis votre tableau de bord.</p></div>
+        <a href="#/inscription?role=agent" class="btn btn-white btn-lg">Créer mon compte démarcheur</a></div></div></section>`;
+    const hi=document.getElementById("heroImg");
+    hi.onerror=()=>{hi.outerHTML=Demo.HOUSE_FB;};
+    let tx="location";
+    document.getElementById("txLoc").onclick=e=>{tx="location";e.target.classList.add("on");document.getElementById("txVente").classList.remove("on");};
+    document.getElementById("txVente").onclick=e=>{tx="vente";e.target.classList.add("on");document.getElementById("txLoc").classList.remove("on");};
+    document.getElementById("homeSearch").addEventListener("submit",e=>{e.preventDefault();
+      const q=new URLSearchParams();q.set("tx",tx);
+      const c=document.getElementById("hsCity").value,k=document.getElementById("hsQ").value.trim(),
+            cat=document.getElementById("hsCat").value,mx=document.getElementById("hsMax").value;
+      if(c)q.set("city",c);if(k)q.set("q",k);if(cat)q.set("cat",cat);if(mx)q.set("max",mx);
+      location.hash="#/explorer?"+q.toString();});
+    const all=(await Repo.list({})).items, counts={};
+    Repo.CATS.forEach(c=>counts[c.id]=all.filter(p=>p.category===c.id).length);
+    document.getElementById("catRow").innerHTML=Repo.CATS.map((c,i)=>`<a class="cat-card rv ${i%3===1?"rv-d1":i%3===2?"rv-d2":""}" href="#/categorie/${c.id}"><div class="cat-ic">${ic(c.icon,26)}</div><div class="cat-name">${c.label}</div><div class="cat-count">${counts[c.id]||0} bien${(counts[c.id]||0)>1?"s":""}</div></a>`).join("");
+    document.getElementById("recentGrid").innerHTML=(await Repo.list({sort:"recent"})).items.map(propCard).join("")||UI.empty("building","Aucune annonce pour le moment","Les premiers biens publiés apparaîtront ici.");
+    document.getElementById("popGrid").innerHTML=all.slice().sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,3).map(propCard).join("");
+    const ag=(await Repo.agents()).filter(a=>a.is_verified).slice(0,4);
+    document.getElementById("agentsRow").innerHTML=ag.map(agentFrame).join("")||UI.empty("shield","Pas encore de démarcheur vérifié","La vérification arrive bientôt.");
+    UI.tilt(document.querySelectorAll(".agent-frame"));UI.reveal();}
+
+  const st={page:1,q:{},sort:"recent"};
+  async function explore(q,preset={}){st.q={...preset,...q};st.page=+(q.page||1);st.sort=q.sort||st.sort;
+    const title=preset.tx==="location"?"Location":preset.tx==="vente"?"Vente":preset.cat?Repo.catLabel(preset.cat):"Explorer les annonces";
+    document.title=title+" — IMMO LINK";
+    document.getElementById("app").innerHTML=`<div class="container"><div class="page-head"><h1>${esc(title)}</h1>
+      <p>${preset.cat?"Tous les biens de type « "+esc(Repo.catLabel(preset.cat)).toLowerCase()+" »":"Toutes les annonces immobilières disponibles au Togo"}.</p></div></div>
+    <div class="exp-bar"><div class="container"><div class="exp-bar-in">
+      <div class="exp-search">${ic("search",17)}<input id="expQ" placeholder="Quartier, titre, ville…" value="${esc(st.q.q||"")}"></div>
+      <select class="in" id="expCity" style="max-width:160px"><option value="">Toutes villes</option>${Repo.cities().map(c=>`<option ${st.q.city===c?"selected":""}>${c}</option>`).join("")}</select>
+      <select class="in" id="expSort" style="max-width:190px"><option value="recent">Plus récentes</option><option value="oldest" ${st.sort==="oldest"?"selected":""}>Plus anciennes</option><option value="price_asc" ${st.sort==="price_asc"?"selected":""}>Prix croissant</option><option value="price_desc" ${st.sort==="price_desc"?"selected":""}>Prix décroissant</option></select>
+      <button class="btn btn-ghost btn-sm" id="expFilters">${ic("sliders",17)} Filtres</button></div>
+      <div class="chips" id="chips"><button class="chip ${!st.q.cat?"on":""}" data-cat="">Tous</button>${Repo.CATS.map(c=>`<button class="chip ${st.q.cat===c.id?"on":""}" data-cat="${c.id}">${c.label}</button>`).join("")}</div></div></div>
+    <div class="container"><div class="filters-panel" id="filtersPanel" hidden>
+      <div class="field"><label>Budget max (FCFA)</label><input class="in" id="fMax" type="number" min="0" value="${esc(st.q.max||"")}"></div>
+      <div class="field"><label>Chambres min</label><select class="in" id="fCh"><option value="">Indifférent</option>${[1,2,3,4,5].map(n=>`<option value="${n}" ${+st.q.chambers===n?"selected":""}>${n}+</option>`).join("")}</select></div>
+      <div class="field"><label>Transaction</label><select class="in" id="fTx"><option value="">Toutes</option><option value="location" ${st.q.tx==="location"?"selected":""}>Location</option><option value="vente" ${st.q.tx==="vente"?"selected":""}>Vente</option></select></div>
+      <div class="field" style="justify-content:flex-end"><button class="btn btn-primary" id="fApply">Appliquer</button></div></div>
+      <p class="result-count" id="rc"></p><div class="p-grid" id="expGrid">${UI.skel(6)}</div><div class="pager" id="pager"></div></div>`;
+    UI.bind("#expQ","keydown",e=>{if(e.key==="Enter"){e.preventDefault();go(1);}});
+    UI.bind("#expSort","change",()=>{st.sort=document.getElementById("expSort").value;go(1);});
+    UI.bind("#expCity","change",()=>{st.q.city=document.getElementById("expCity").value;go(1);});
+    UI.bind("#expFilters","click",()=>{const p=document.getElementById("filtersPanel");p.hidden=!p.hidden;});
+    UI.bind("#fApply","click",()=>{st.q.max=document.getElementById("fMax").value;st.q.chambers=document.getElementById("fCh").value;st.q.tx=document.getElementById("fTx").value;go(1);});
+    document.getElementById("chips").addEventListener("click",e=>{const b=e.target.closest("[data-cat]");if(!b)return;st.q.cat=b.dataset.cat;go(1);});
+    async function go(pg){st.page=pg;const pr=new URLSearchParams();
+      Object.entries({...st.q,page:pg,sort:st.sort}).forEach(([k,v])=>{if(v)pr.set(k,v);});
+      Object.entries(preset).forEach(([k,v])=>{if(v)pr.set(k,v);});
+      history.replaceState(null,"","#/explorer?"+pr.toString());await load();}
+    async function load(){const g=document.getElementById("expGrid");g.innerHTML=UI.skel(6);
+      try{const r=await Repo.list({...st.q,...preset,page:st.page,sort:st.sort});
+        document.getElementById("rc").innerHTML=`<b>${r.total}</b> bien${r.total>1?"s":""} disponible${r.total>1?"s":""}`;
+        g.innerHTML=r.items.map(propCard).join("")||UI.empty("search","Aucun résultat","Essayez d'élargir vos critères ou de changer de ville.",`<button class="btn btn-ghost" onclick="location.hash='#/explorer'">Réinitialiser</button>`);
+        const pages=Math.max(1,Math.ceil(r.total/CONFIG.PAGE_SIZE)),pg=document.getElementById("pager");
+        if(pages>1){let h=`<button ${st.page<=1?"disabled":""} data-p="${st.page-1}">${ic("arrowl",16)}</button>`;
+          for(let i=1;i<=pages;i++)h+=`<button class="${i===st.page?"on":""}" data-p="${i}">${i}</button>`;
+          h+=`<button ${st.page>=pages?"disabled":""} data-p="${st.page+1}">${ic("arrowr",16)}</button>`;
+          pg.innerHTML=h;pg.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>go(+b.dataset.p)));}
+        else pg.innerHTML="";UI.reveal();}
+      catch(e){g.innerHTML=UI.empty("alert","Erreur de chargement","Vérifiez votre connexion puis réessayez.");}}
+    await load();}
+
+  async function property(id){const app=document.getElementById("app");
+    app.innerHTML=`<div class="container" style="padding-top:26px">${UI.skel(1)}</div>`;
+    let p;try{p=await Repo.get(id);}catch(e){p=null;}
+    if(!p){app.innerHTML=`<div class="container" style="padding-top:40px">${UI.empty("building","Annonce introuvable","Elle a peut-être été retirée par le démarcheur.","<a class='btn btn-primary' href='#/explorer'>Voir d'autres biens</a>")}</div>`;return;}
+    Repo.trackView(id);Repo.pushRecent(id);
+    const agent=Repo.live?p._agent:await Repo.agent(p.agent_id);
+    document.title=p.title+" — IMMO LINK";
+    const imgs=p.images&&p.images.length?p.images:[{url:Demo.scene(p.category,1),is_main:true}];
+    const notAvail=["rented","sold","expired"].includes(p.status);
+    app.innerHTML=`<div class="container"><a class="back-link" href="javascript:history.back()">${ic("arrowl",16)} Retour</a>
+      <div class="detail-grid"><div>
+        <div class="gal"><div class="gal-main"><img id="galMain" src="${imgs[0].url}" alt="${esc(p.title)}"></div>
+        ${imgs.length>1?`<div class="gal-thumbs">${imgs.map((im,i)=>`<button class="${i===0?"on":""}" data-gi="${i}" aria-label="Photo ${i+1}"><img src="${im.url}" alt="" loading="lazy"></button>`).join("")}</div>`:""}</div>
+        <div class="info-card" style="margin-top:16px"><h3>${ic("doc",18)} Description</h3>
+          <p style="color:var(--mut);font-weight:500;white-space:pre-line">${esc(p.description)}</p>
+          <div class="meta-strip">${p.chambers?`<span class="meta-pill">${ic("bed",16)} ${p.chambers} chambre${p.chambers>1?"s":""}</span>`:""}${p.bathrooms?`<span class="meta-pill">${ic("bath",16)} ${p.bathrooms} salle${p.bathrooms>1?"s":""} de bain</span>`:""}${p.lounges?`<span class="meta-pill">${ic("area",16)} ${p.lounges} salon${p.lounges>1?"s":""}</span>`:""}${p.surface?`<span class="meta-pill">${ic("area",16)} ${fmt(p.surface)} m²</span>`:""}${p.kitchen?`<span class="meta-pill">${ic("menu",16)} Cuisine : ${esc(p.kitchen)}</span>`:""}</div></div>
+        ${(p.amenities||[]).length?`<div class="info-card"><h3>${ic("check",18)} Caractéristiques & équipements</h3><div class="amen-grid">${p.amenities.map(a=>`<span class="amen">${ic("check",15)} ${esc(a)}</span>`).join("")}${p.garage?`<span class="amen">${ic("check",15)} Garage</span>`:""}${p.garden?`<span class="amen">${ic("check",15)} Jardin</span>`:""}${p.furnished?`<span class="amen">${ic("check",15)} Meublé</span>`:""}</div></div>`:""}
+        ${p.lat&&p.lng?`<div class="info-card"><h3>${ic("pin",18)} Localisation</h3><div class="map-box" id="map"></div><p class="hint" style="margin-top:9px">${esc(p.address||"")} — ${esc(p.district||"")}, ${esc(p.city)} (position indicative)</p></div>`:`<div class="info-card"><h3>${ic("pin",18)} Localisation</h3><p style="color:var(--mut);font-weight:600">${esc(p.address||"Adresse communiquée par le démarcheur")} — ${esc(p.district||"")}, ${esc(p.city)}</p></div>`}
+        <button class="report-link" id="reportBtn">${ic("alert",14)} Signaler cette annonce</button></div>
+      <div><div class="info-card">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <span class="badge ${p.transaction==="location"?"b-orange":"b-navy"}">${p.transaction==="location"?"Location":"Vente"}</span>
+          <span class="badge b-grey">${esc(Repo.catLabel(p.category))}</span>
+          <span class="st st-${p.status}">${Repo.STATUS[p.status]||p.status}</span>
+          ${p.demo&&!Repo.live?'<span class="badge b-grey">Annonce de démonstration</span>':""}</div>
+        <h1 class="detail-title">${esc(p.title)}</h1>
+        <div class="pcard-loc" style="font-size:.95rem">${ic("pin",15)} ${esc(p.district?p.district+" · ":"")}${esc(p.city)}, Togo</div>
+        <div class="detail-price" style="margin-top:12px">${price(p.price,p.transaction)}</div>
+        ${p.transaction==="location"?`<table class="cost-table" style="margin-top:14px">${p.caution?`<tr><td>Caution</td><td>${fmt(p.caution)} FCFA</td></tr>`:""}${p.avance?`<tr><td>Avance</td><td>${fmt(p.avance)} FCFA</td></tr>`:""}${p.commission?`<tr><td>Commission</td><td>${fmt(p.commission)} FCFA</td></tr>`:""}</table>`:""}
+        <p class="hint" style="margin-top:12px">Publiée ${timeAgo(p.created_at)} · ${fmt(p.views||0)} vues</p></div>
+        <div class="info-card"><div class="agent-mini">
+          <div class="avatar"><img src="${agent&&agent.avatar_url||Demo.avatar(agent?agent.full_name:"IM",3)}" alt=""></div>
+          <div><b>${esc(agent?agent.full_name:"Démarcheur")} ${agent&&agent.is_verified?ic("shield",15):""}</b>
+          <small>${esc(agent&&agent.agency_name||"Démarcheur indépendant")}</small>
+          ${agent&&agent.is_verified?`<span class="badge b-green" style="margin-top:5px">${ic("shield",12)} Vérifié</span>`:""}</div></div>
+          ${notAvail?`<div class="notice">${ic("alert",18)} Ce bien n'est plus disponible (${(Repo.STATUS[p.status]||"").toLowerCase()}). Consultez les annonces similaires ci-dessous.</div>`
+          :`<div class="act-stack">
+            <a class="btn btn-wa btn-block" id="waBtn" href="${agent?Repo.waLink(agent.phone,p.title):"#"}" target="_blank" rel="noopener">${ic("wa",19)} Contacter sur WhatsApp</a>
+            <a class="btn btn-navy btn-block" id="telBtn" href="${agent?Repo.telLink(agent.phone):"#"}">${ic("phone",19)} Appeler ${esc(agent?agent.phone:"")}</a>
+            <button class="btn btn-primary btn-block" id="visitBtn">${ic("calendar",19)} Demander une visite</button></div>`}
+          ${agent?`<a class="btn btn-ghost btn-sm btn-block" style="margin-top:10px" href="#/demarcheur/${agent.id}">Voir toutes ses annonces</a>`:""}</div></div></div>
+      <div class="sec-head" style="margin-top:44px"><div><p class="sec-kicker">Continuer la recherche</p><h2 class="sec-title">Annonces similaires</h2></div></div>
+      <div class="p-grid" id="simGrid">${UI.skel(3)}</div></div>`;
+    document.querySelectorAll("[data-gi]").forEach(b=>b.addEventListener("click",()=>{
+      document.getElementById("galMain").src=imgs[+b.dataset.gi].url;
+      document.querySelectorAll("[data-gi]").forEach(x=>x.classList.toggle("on",x===b));}));
+    const wa=document.getElementById("waBtn"),tl=document.getElementById("telBtn");
+    if(wa)wa.addEventListener("click",()=>{if(App.user)Repo.logContact(App.user.id,p,"whatsapp");});
+    if(tl)tl.addEventListener("click",()=>{if(App.user)Repo.logContact(App.user.id,p,"call");});
+    const vb=document.getElementById("visitBtn");
+    if(vb)vb.addEventListener("click",()=>{
+      if(!App.user){UI.toast("Connectez-vous pour demander une visite.","info");location.hash="#/connexion?next=/bien/"+p.id;return;}
+      if(App.user.role!=="client"){UI.toast("Seul un compte client peut demander une visite.","error");return;}
+      const today=new Date().toISOString().slice(0,10);
+      UI.modal(`<form id="vForm" class="form-grid"><div class="field"><label>Date souhaitée</label><input class="in" type="date" id="vDate" min="${today}" required></div>
+        <div class="field"><label>Heure</label><select class="in" id="vTime">${["08:00","09:00","10:00","11:00","14:00","15:00","16:00","17:00"].map(t=>`<option>${t}</option>`).join("")}</select></div>
+        <div class="field full"><label>Message <small>(facultatif)</small></label><textarea class="in" id="vMsg"></textarea></div>
+        <button class="btn btn-primary btn-block" type="submit">${ic("send",18)} Envoyer la demande</button></form>`,{title:"Demander une visite"});
+      document.getElementById("vForm").addEventListener("submit",async e=>{e.preventDefault();
+        const r=await Repo.createVisit(App.user.id,p,{date:document.getElementById("vDate").value,time:document.getElementById("vTime").value,message:document.getElementById("vMsg").value.trim()});
+        UI.closeModal();r.ok?UI.toast("Demande de visite envoyée au démarcheur.","success"):UI.toast(r.error||"Impossible d'envoyer la demande.","error");});});
+    document.getElementById("reportBtn").addEventListener("click",()=>{
+      UI.modal(`<form id="rForm" class="form-grid"><div class="field"><label>Motif du signalement</label><select class="in" id="rReason"><option>Annonce suspecte ou trompeuse</option><option>Bien déjà loué / vendu</option><option>Prix incohérent</option><option>Comportement douteux du démarcheur</option><option>Autre</option></select></div>
+        <button class="btn btn-danger btn-block" type="submit">${ic("alert",17)} Signaler</button></form>`,{title:"Signaler l'annonce"});
+      document.getElementById("rForm").addEventListener("submit",e=>{e.preventDefault();
+        Repo.report(p.id,document.getElementById("rReason").value);UI.closeModal();
+        UI.toast("Merci, votre signalement a été transmis à notre équipe.","success");});});
+    if(p.lat&&p.lng&&window.L){const m=L.map("map",{scrollWheelZoom:false}).setView([p.lat,p.lng],14);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:'&copy; OpenStreetMap'}).addTo(m);
+      L.marker([p.lat,p.lng]).addTo(m).bindPopup("<b>"+UI.esc(p.title)+"</b>");}
+    document.getElementById("simGrid").innerHTML=(await Repo.similar(p)).map(propCard).join("")||UI.empty("building","Pas d'annonces similaires","Revenez plus tard, de nouveaux biens sont publiés régulièrement.");
+    UI.reveal();}
+
+  async function agents(){document.title="Démarcheurs — IMMO LINK";
+    document.getElementById("app").innerHTML=`<div class="container"><div class="page-head"><h1>Nos démarcheurs</h1>
+      <p>Des professionnels de l'immobilier partout au Togo. Le badge vérifié indique qu'un contrôle des justificatifs a été effectué.</p></div>
+      <div class="notice navy">${ic("shield",18)} Un badge vérifié signifie qu'un contrôle a été réalisé par IMMO LINK. Il ne constitue pas une garantie juridique absolue sur le bien proposé.</div>
+      <div class="agents-row" id="agRow" style="margin-top:20px">${UI.skel(4)}</div></div>`;
+    document.getElementById("agRow").innerHTML=(await Repo.agents()).map(agentFrame).join("")||UI.empty("user","Aucun démarcheur inscrit","Les premiers professionnels apparaîtront ici.");
+    UI.tilt(document.querySelectorAll(".agent-frame"));UI.reveal();}
+
+  async function agentProfile(id){const a=await Repo.agent(id),app=document.getElementById("app");
+    if(!a){app.innerHTML=`<div class="container" style="padding-top:40px">${UI.empty("user","Profil introuvable","Ce démarcheur n'existe plus.","<a class='btn btn-primary' href='#/demarcheurs'>Voir les démarcheurs</a>")}</div>`;return;}
+    document.title=a.full_name+" — IMMO LINK";
+    const biens=await Repo.byAgent(id);
+    app.innerHTML=`<div class="container"><a class="back-link" href="#/demarcheurs">${ic("arrowl",16)} Tous les démarcheurs</a>
+      <div class="info-card" style="margin-top:10px"><div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+        <div class="avatar" style="width:92px;height:92px;margin:0;transform:none"><img src="${a.avatar_url||Demo.avatar(a.full_name,a.full_name.length)}" alt=""></div>
+        <div style="flex:1;min-width:220px"><h1 style="font-size:1.4rem;display:flex;gap:8px;align-items:center">${esc(a.full_name)} ${a.is_verified?ic("shield",20):""}</h1>
+          <p style="color:var(--mut);font-weight:600">${esc(a.agency_name||"Démarcheur indépendant")} · ${esc(a.city||"Togo")}</p>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">${a.is_verified?'<span class="badge b-green">'+ic("shield",12)+' Vérifié</span>':'<span class="badge b-grey">Non vérifié</span>'}<span class="badge b-orange">${biens.length} annonce${biens.length>1?"s":""} active${biens.length>1?"s":""}</span></div></div>
+        <a class="btn btn-wa" href="${Repo.waLink(a.phone)}" target="_blank" rel="noopener">${ic("wa",18)} WhatsApp</a></div>
+        ${a.bio?`<p style="color:var(--mut);font-weight:500;margin-top:14px;max-width:75ch">${esc(a.bio)}</p>`:""}</div>
+      <div class="sec-head" style="margin-top:34px"><div><p class="sec-kicker">Portfolio</p><h2 class="sec-title">Ses biens disponibles</h2></div></div>
+      <div class="p-grid">${biens.map(propCard).join("")||UI.empty("building","Aucune annonce active","Ce démarcheur n'a pas encore de bien publié.")}</div></div>`;
+    UI.reveal();}
+
+  function about(){document.title="À propos — IMMO LINK";
+    document.getElementById("app").innerHTML=`<div class="container"><div class="page-head"><h1>À propos d'IMMO LINK</h1>
+      <p>La plateforme qui relie les chercheurs de biens aux professionnels de l'immobilier togolais.</p></div>
+      <div class="legal-body rv"><h2>Notre mission</h2>
+      <p>IMMO LINK est née d'un constat simple : trouver un logement ou un terrain au Togo repose trop souvent sur le bouche-à-oreille. Nous construisons un espace unique, clair et sécurisé, où chaque annonce est publiée par un professionnel identifié et où chaque visiteur contacte directement le démarcheur.</p>
+      <h2>Pour les clients</h2><ul><li>Recherche par ville, quartier, type de bien et budget.</li><li>Prix affichés en FCFA, sans surprise.</li><li>Favoris, demandes de visite et historique de contacts centralisés.</li></ul>
+      <h2>Pour les démarcheurs</h2><ul><li>Publication d'annonces avec photos et localisation.</li><li>Gestion des demandes de visite et statistiques de visibilité.</li><li>Badge de vérification après contrôle des justificatifs.</li></ul>
+      <h2>Notre engagement de confiance</h2><p>Les démarcheurs vérifiés ont transmis des justificatifs contrôlés par nos équipes. Ce badge est un repère, pas une garantie juridique absolue : visitez toujours le bien et vérifiez les documents avant tout engagement.</p>
+      <div class="stat-grid" style="margin-top:22px"><div class="stat-card"><div class="stat-num" data-count="12">0</div><div class="stat-lbl">Biens publiés</div></div>
+      <div class="stat-card"><div class="stat-num" data-count="4">0</div><div class="stat-lbl">Démarcheurs inscrits</div></div>
+      <div class="stat-card"><div class="stat-num" data-count="10">0</div><div class="stat-lbl">Villes couvertes</div></div>
+      <div class="stat-card"><div class="stat-num" data-count="100">0</div><div class="stat-lbl">% marché togolais</div></div></div></div>
+      <div class="cta-band rv" style="margin-bottom:30px"><div><h2>Prêt à trouver votre prochain chez-vous ?</h2>
+      <p>Créez un compte gratuit en moins d'une minute et commencez votre recherche.</p></div>
+      <a href="#/inscription" class="btn btn-white btn-lg">Créer un compte</a></div></div>`;
+    UI.reveal();UI.countUp();}
+
+  function contact(){document.title="Contact — IMMO LINK";
+    document.getElementById("app").innerHTML=`<div class="container"><div class="page-head"><h1>Contactez-nous</h1><p>Une question, une suggestion, un problème ? Notre équipe vous répond.</p></div>
+      <div class="detail-grid"><form class="info-card form-grid" id="cForm">
+        <div class="field"><label>Nom complet</label><input class="in" id="cName" required></div>
+        <div class="field"><label>E-mail</label><input class="in" type="email" id="cEmail" required></div>
+        <div class="field full"><label>Sujet</label><input class="in" id="cSubject" required></div>
+        <div class="field full"><label>Message</label><textarea class="in" id="cMsg" required></textarea></div>
+        <button class="btn btn-primary" type="submit">${ic("send",18)} Envoyer le message</button></form>
+        <div><div class="info-card"><h3>${ic("pin",18)} Coordonnées officielles</h3>
+          <p style="color:var(--mut);font-weight:600;display:grid;gap:10px"><span>Lomé, Togo</span>
+          <span>Téléphone : <a href="tel:+22890000000" style="color:var(--p9)">+228 90 00 00 00</a></span>
+          <span>E-mail : <a href="mailto:contact@immolink.tg" style="color:var(--p9)">contact@immolink.tg</a></span>
+          <span>Lundi – Samedi : 8h à 18h</span></p></div>
+          <div class="info-card"><h3>${ic("shield",18)} Signaler un problème</h3>
+          <p style="color:var(--mut);font-weight:500">Chaque annonce dispose d'un lien « Signaler ». Vos signalements sont étudiés par notre équipe de modération.</p></div></div></div></div>`;
+    document.getElementById("cForm").addEventListener("submit",e=>{e.preventDefault();
+      Repo.message({name:cName.value,email:cEmail.value,subject:cSubject.value,message:cMsg.value});
+      e.target.reset();UI.toast("Message envoyé. Nous vous répondrons rapidement.","success");});}
+
+  const LEGAL={cgu:{t:"Conditions d'utilisation",b:`<h2>1. Objet</h2><p>IMMO LINK est une plateforme de mise en relation entre chercheurs de biens immobiliers au Togo et démarcheurs professionnels.</p><h2>2. Comptes</h2><p>Deux types de comptes : client et démarcheur. Chaque utilisateur s'engage à fournir des informations exactes.</p><h2>3. Annonces</h2><p>Les démarcheurs sont seuls responsables du contenu de leurs annonces : exactitude, prix, disponibilité et droits sur les photos.</p><h2>4. Vérification</h2><p>Le badge « Vérifié » atteste d'un contrôle des justificatifs. Il ne constitue pas une garantie juridique absolue.</p><h2>5. Responsabilité</h2><p>IMMO LINK est un intermédiaire technique. Les transactions s'effectuent directement entre client et démarcheur.</p><h2>6. Abonnements</h2><p>Les formules payantes donnent droit à un quota d'annonces actives. En version 1, l'activation s'effectue après paiement manuel confirmé.</p>`},
+    confidentialite:{t:"Politique de confidentialité",b:`<h2>1. Données collectées</h2><p>Nom, téléphone, e-mail, ville, contenus publiés et interactions (favoris, visites, contacts).</p><h2>2. Utilisation</h2><p>Ces données servent exclusivement au fonctionnement de la plateforme.</p><h2>3. Justificatifs</h2><p>Les documents de vérification sont stockés de manière privée, jamais affichés publiquement.</p><h2>4. Partage</h2><p>Aucune donnée n'est vendue.</p><h2>5. Droits</h2><p>Rectification ou suppression sur demande à contact@immolink.tg.</p>`},
+    mentions:{t:"Mentions légales",b:`<h2>Éditeur</h2><p>IMMO LINK — plateforme immobilière destinée au marché togolais. Siège : Lomé, Togo. Contact : contact@immolink.tg — +228 90 00 00 00.</p><h2>Hébergement</h2><p>Site hébergé par Netlify. Données stockées chez Supabase (PostgreSQL).</p><h2>Propriété intellectuelle</h2><p>La marque IMMO LINK, son logo et son interface sont la propriété de l'éditeur.</p><h2>Cartographie</h2><p>Cartes OpenStreetMap, sous licence ODbL.</p>`}};
+  function legal(k){const l=LEGAL[k]||LEGAL.cgu;document.title=l.t+" — IMMO LINK";
+    document.getElementById("app").innerHTML=`<div class="container"><div class="page-head"><h1>${l.t}</h1><p>Dernière mise à jour : novembre 2026</p></div><div class="legal-body rv">${l.b}</div></div>`;UI.reveal();}
+
+  return{home,explore,property,agents,agentProfile,about,contact,legal,propCard,agentFrame};
+})();
+
+/* ================= AUTH ================= */
+const AuthViews=(()=>{const{icon:ic}=UI;
+  const next=()=>Router.parse().q.next||"";
+  const side=()=>`<aside class="auth-side"><h2>IMMO LINK vous ouvre la porte.</h2>
+    <p>Rejoignez la plateforme immobilière pensée pour le Togo : recherche simple, démarcheurs identifiés, contact direct.</p>
+    <ul><li>${ic("shield",20)} Démarcheurs vérifiés après contrôle</li><li>${ic("wa",20)} Contact WhatsApp et appel en un geste</li>
+    <li>${ic("calendar",20)} Demandes de visite suivies de bout en bout</li><li>${ic("heart",20)} Favoris synchronisés sur votre compte</li></ul></aside>`;
+  function login(){document.title="Connexion — IMMO LINK";
+    document.getElementById("app").innerHTML=`<div class="auth-wrap">${side()}<div class="auth-main"><div class="auth-card">
+      <h1>Content de vous revoir</h1><p class="sub">Connectez-vous pour retrouver vos favoris et vos demandes.</p>
+      <form id="liForm" class="form-grid"><div class="field full"><label>Adresse e-mail</label><input class="in" type="email" id="liEmail" autocomplete="email" required></div>
+      <div class="field full"><label>Mot de passe</label><input class="in" type="password" id="liPass" autocomplete="current-password" required></div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit" id="liBtn">Se connecter</button></form>
+      <p class="auth-alt">Pas encore de compte ? <a href="#/inscription">Créer un compte</a></p>
+      ${!Repo.live?`<div class="demo-accounts"><b>Comptes de démonstration</b> (mode démo actif)<br>Client : <b>client@demo.tg</b> · Démarcheur : <b>kossi@demo.tg</b> · Mot de passe : <b>demo1234</b></div>`:""}</div></div></div>`;
+    document.getElementById("liForm").addEventListener("submit",async e=>{e.preventDefault();
+      const b=document.getElementById("liBtn");b.classList.add("loading");
+      const r=await Repo.signin(liEmail.value,liPass.value);b.classList.remove("loading");
+      if(!r.ok)return UI.toast(r.error,"error");
+      await App.refresh();UI.toast("Connexion réussie. Bienvenue !","success");
+      const n=next();location.hash=n?"#"+n:(App.user.role==="agent"?"#/espace/demarcheur":"#/espace/client");});}
+  function register(){document.title="Inscription — IMMO LINK";
+    let role=Router.parse().q.role==="agent"?"agent":"client";
+    document.getElementById("app").innerHTML=`<div class="auth-wrap">${side()}<div class="auth-main"><div class="auth-card" style="max-width:560px">
+      <h1>Créer un compte</h1><p class="sub">Gratuit, en moins d'une minute.</p>
+      <div class="seg" style="margin-bottom:20px"><button type="button" id="rC" class="${role==="client"?"on":""}">Je cherche un bien</button><button type="button" id="rA" class="${role==="agent"?"on":""}">Je suis démarcheur</button></div>
+      <form id="rgForm" class="form-grid"><div class="field full"><label>Nom complet</label><input class="in" id="rgName" required minlength="3"></div>
+      <div class="field full" id="fAg" hidden><label>Nom professionnel / agence <small>(facultatif)</small></label><input class="in" id="rgAgency"></div>
+      <div class="field"><label>Téléphone <small>(+228)</small></label><input class="in" id="rgPhone" inputmode="tel" placeholder="90 00 00 00" required></div>
+      <div class="field" id="fCity" hidden><label>Ville</label><select class="in" id="rgCity"><option value="">Choisir…</option>${Repo.cities().map(c=>`<option>${c}</option>`).join("")}</select></div>
+      <div class="field full"><label>Adresse e-mail</label><input class="in" type="email" id="rgEmail" required></div>
+      <div class="field"><label>Mot de passe</label><input class="in" type="password" id="rgPass" minlength="6" required></div>
+      <div class="field"><label>Confirmation</label><input class="in" type="password" id="rgPass2" required></div>
+      <p class="err full" id="rgErr"></p>
+      <button class="btn btn-primary btn-block btn-lg" type="submit" id="rgBtn">Créer mon compte</button></form>
+      <p class="auth-alt">Déjà inscrit ? <a href="#/connexion">Se connecter</a></p></div></div></div>`;
+    const sync=()=>{rC.classList.toggle("on",role==="client");rA.classList.toggle("on",role==="agent");
+      fAg.hidden=role!=="agent";fCity.hidden=role!=="agent";};
+    rC.onclick=()=>{role="client";sync();};rA.onclick=()=>{role="agent";sync();};sync();
+    document.getElementById("rgForm").addEventListener("submit",async e=>{e.preventDefault();
+      const err=document.getElementById("rgErr");err.classList.remove("show");
+      const p1=rgPass.value,p2=rgPass2.value,ph=rgPhone.value.replace(/\D/g,"");
+      const bad=m=>{err.textContent=m;err.classList.add("show");};
+      if(p1.length<6)return bad("Le mot de passe doit contenir au moins 6 caractères.");
+      if(p1!==p2)return bad("Les deux mots de passe ne correspondent pas.");
+      if(ph.length!==8&&!ph.startsWith("228"))return bad("Numéro invalide : 8 chiffres attendus (format togolais).");
+      if(role==="agent"&&!rgCity.value)return bad("Veuillez choisir votre ville.");
+      const b=document.getElementById("rgBtn");b.classList.add("loading");
+      const r=await Repo.signup({role,full_name:rgName.value,phone:rgPhone.value,email:rgEmail.value,password:p1,agency_name:rgAgency?rgAgency.value:"",city:rgCity?rgCity.value:""});
+      b.classList.remove("loading");if(!r.ok)return UI.toast(r.error,"error");
+      await App.refresh();UI.toast("Compte créé avec succès. Bienvenue sur IMMO LINK !","success");
+      location.hash=role==="agent"?"#/espace/demarcheur":"#/espace/client";});}
+  return{login,register};})();
+
+/* ================= ESPACE CLIENT ================= */
+const ClientSpace=(()=>{const{icon:ic,esc,price,dfr,timeAgo}=UI;
+  const NAV=[{id:"dash",h:"#/espace/client",l:"Tableau de bord",i:"menu"},{id:"fav",h:"#/espace/client/favoris",l:"Mes favoris",i:"heart"},{id:"ct",h:"#/espace/client/contacts",l:"Mes contacts",i:"phone"},{id:"vs",h:"#/espace/client/visites",l:"Mes visites",i:"calendar"},{id:"pf",h:"#/espace/client/profil",l:"Mon profil",i:"user"},{id:"st",h:"#/espace/client/parametres",l:"Paramètres",i:"gear"}];
+  const shell=(a,t,inner)=>`<div class="container"><div class="space">
+    <nav class="sidenav"><div class="sn-user"><div class="avatar"><img src="${App.user.avatar_url||Demo.avatar(App.user.full_name,5)}" alt=""></div><div><b>${esc(App.user.full_name)}</b><small>Compte client</small></div></div>
+    ${NAV.map(n=>`<a class="sn-link ${n.id===a?"active":""}" href="${n.h}">${ic(n.i,19)} ${n.l}</a>`).join("")}</nav>
+    <div><div class="sp-tabs">${NAV.map(n=>`<a class="sp-tab ${n.id===a?"active":""}" href="${n.h}">${ic(n.i,16)} ${n.l}</a>`).join("")}</div>
+    <div class="sp-head"><h1>${t}</h1></div>${inner}</div></div></div>`;
+  async function dash(){document.title="Mon espace — IMMO LINK";
+    document.getElementById("app").innerHTML=shell("dash","Tableau de bord",`<div id="cd">${UI.skel(2)}</div>`);
+    const[f,c,v]=await Promise.all([Repo.favs(App.user.id),Repo.contacts(App.user.id),Repo.visits(App.user.id,"client")]);
+    const rec=Repo.recent();let rh="";
+    for(const id of rec.slice(0,3)){const p=await Repo.get(id);
+      if(p)rh+=`<a class="row-item cols" href="#/bien/${p.id}"><div class="row-thumb"><img src="${p.images[0]?p.images[0].url:Demo.scene(p.category,1)}" alt=""></div><div><b>${esc(p.title)}</b><div class="ri-sub">${esc(p.city)} · ${price(p.price,p.transaction)}</div></div><span class="st st-${p.status}">${Repo.STATUS[p.status]}</span></a>`;}
+    document.getElementById("cd").innerHTML=`<p style="color:var(--mut);font-weight:600;margin-bottom:18px">Bonjour <b style="color:var(--p9)">${esc(App.user.full_name.split(" ")[0])}</b>, voici l'essentiel de votre activité.</p>
+      <div class="stat-grid"><div class="stat-card"><div class="sc-ic">${ic("heart",20)}</div><div class="stat-num">${f.length}</div><div class="stat-lbl">Favoris enregistrés</div></div>
+      <div class="stat-card"><div class="sc-ic">${ic("phone",20)}</div><div class="stat-num">${c.length}</div><div class="stat-lbl">Contacts lancés</div></div>
+      <div class="stat-card"><div class="sc-ic">${ic("calendar",20)}</div><div class="stat-num">${v.length}</div><div class="stat-lbl">Demandes de visite</div></div>
+      <div class="stat-card"><div class="sc-ic">${ic("eye",20)}</div><div class="stat-num">${rec.length}</div><div class="stat-lbl">Biens consultés</div></div></div>
+      <h3 style="margin:6px 0 12px">Dernières annonces consultées</h3>
+      <div class="row-list">${rh||UI.empty("eye","Aucune consultation récente","Explorez le catalogue et vos biens consultés s'afficheront ici.","<a class='btn btn-primary' href='#/explorer'>Explorer</a>")}</div>`;}
+  async function favs(){document.title="Mes favoris — IMMO LINK";
+    document.getElementById("app").innerHTML=shell("fav","Mes favoris",`<div id="fb">${UI.skel(2)}</div>`);
+    const it=await Repo.favs(App.user.id);
+    document.getElementById("fb").innerHTML=it.length?`<div class="p-grid">${it.map(Views.propCard).join("")}</div>`
+      :UI.empty("heart","Aucun favori pour le moment","Touchez le cœur sur une annonce pour la retrouver ici.","<a class='btn btn-primary' href='#/explorer'>Explorer les annonces</a>");
+    UI.reveal();}
+  async function contacts(){document.title="Mes contacts — IMMO LINK";
+    document.getElementById("app").innerHTML=shell("ct","Mes contacts",`<div id="cb"></div>`);
+    const l=await Repo.contacts(App.user.id);
+    document.getElementById("cb").innerHTML=`<div class="notice navy">${ic("bell",18)} Cet historique recense les contacts lancés depuis IMMO LINK (clics WhatsApp / appels). Les conversations WhatsApp se déroulent dans votre application.</div>
+      ${l.length?`<div class="row-list">${l.map(c=>`<div class="row-item cols"><div class="row-thumb" style="display:flex;align-items:center;justify-content:center;background:${c.type==="whatsapp"?"var(--ok06)":"var(--p06)"};color:${c.type==="whatsapp"?"var(--wa)":"var(--p9)"}">${ic(c.type==="whatsapp"?"wa":"phone",26)}</div>
+      <div><b>${esc(c.properties.title)}</b><div class="ri-sub">${c.type==="whatsapp"?"Contact WhatsApp":"Appel téléphonique"} · ${esc(c.properties.city||"")} · ${timeAgo(c.created_at)}</div></div>
+      <a class="btn btn-ghost btn-sm" href="#/bien/${c.property_id}">Voir l'annonce</a></div>`).join("")}</div>`
+      :UI.empty("phone","Aucun contact enregistré","Depuis une annonce, utilisez les boutons WhatsApp ou Appeler : ils apparaîtront ici.")}`;}
+  async function visits(){document.title="Mes visites — IMMO LINK";
+    document.getElementById("app").innerHTML=shell("vs","Mes demandes de visite",`<div id="vb"></div>`);
+    const l=await Repo.visits(App.user.id,"client");
+    const bd=s=>`<span class="badge ${{en_attente:"b-orange",acceptee:"b-green",refusee:"b-red",reportee:"b-navy",terminee:"b-grey"}[s]}">${Repo.VSTATUS[s]}</span>`;
+    document.getElementById("vb").innerHTML=l.length?`<div class="row-list">${l.map(v=>{const p=v.properties;
+      return `<div class="row-item cols"><div class="row-thumb">${p&&p.images?`<img src="${p.images[0].url}">`:""}</div>
+      <div><b>${esc(p?p.title:"Annonce supprimée")}</b><div class="ri-sub">${ic("calendar",13)} ${dfr(v.desired_date)} à ${esc(v.desired_time)} ${v.proposal?" · Proposition : "+esc(v.proposal):""}</div></div>
+      <div class="ri-actions">${bd(v.status)}${v.status==="en_attente"?`<button class="btn btn-danger btn-sm" data-cx="${v.id}">Annuler</button>`:""}${p?`<a class="btn btn-ghost btn-sm" href="#/bien/${p.id}">Voir</a>`:""}</div></div>`;}).join("")}</div>`
+      :UI.empty("calendar","Aucune demande de visite","Depuis une annonce, utilisez le bouton « Demander une visite ».");
+    UI.bind("[data-cx]","click",e=>UI.confirm("Annuler cette demande de visite ?",async()=>{
+      await Repo.updVisit(e.currentTarget.dataset.cx,"refusee");UI.toast("Demande annulée.","info");visits();},{yes:"Annuler la demande",danger:true}));}
+  function profile(){document.title="Mon profil — IMMO LINK";const u=App.user;
+    document.getElementById("app").innerHTML=shell("pf","Mon profil",`<form class="info-card form-grid" id="pfF" style="max-width:640px">
+      <div class="field"><label>Nom complet</label><input class="in" id="pfN" value="${esc(u.full_name)}" required></div>
+      <div class="field"><label>Téléphone</label><input class="in" id="pfP" value="${esc(u.phone||"")}" inputmode="tel"></div>
+      <div class="field"><label>Ville</label><select class="in" id="pfC"><option value="">Non renseignée</option>${Repo.cities().map(c=>`<option ${u.city===c?"selected":""}>${c}</option>`).join("")}</select></div>
+      <div class="field"><label>E-mail <small>(non modifiable)</small></label><input class="in" value="${esc(u.email)}" disabled></div>
+      <button class="btn btn-primary" type="submit">${ic("check",18)} Enregistrer</button></form>`);
+    document.getElementById("pfF").addEventListener("submit",async e=>{e.preventDefault();
+      const r=await Repo.updProf(u.id,{full_name:pfN.value,phone:Repo.normPhone(pfP.value),city:pfC.value});
+      if(r.ok){await App.refresh();UI.toast("Profil mis à jour.","success");}else UI.toast(r.error||"Erreur.","error");});}
+  function settings(){document.title="Paramètres — IMMO LINK";
+    document.getElementById("app").innerHTML=shell("st","Paramètres",`<form class="info-card form-grid" id="pwF" style="max-width:560px">
+      <h3 style="display:flex;gap:9px;align-items:center">${ic("key",18)} Changer le mot de passe</h3>
+      <div class="field full"><label>Mot de passe actuel</label><input class="in" type="password" id="pwO" required></div>
+      <div class="field"><label>Nouveau</label><input class="in" type="password" id="pwN" minlength="6" required></div>
+      <div class="field"><label>Confirmation</label><input class="in" type="password" id="pwN2" required></div>
+      <button class="btn btn-primary" type="submit">Mettre à jour</button></form>
+      <div class="info-card" style="max-width:560px"><h3 style="display:flex;gap:9px;align-items:center">${ic("gear",18)} Compte</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" id="stOut">${ic("logout",18)} Se déconnecter</button>
+      <button class="btn btn-danger" id="stDel">${ic("trash",18)} Supprimer mon compte</button></div>
+      <p class="hint" style="margin-top:12px">En mode Supabase, la suppression définitive est traitée par l'équipe (module d'administration à venir).</p></div>`);
+    document.getElementById("pwF").addEventListener("submit",async e=>{e.preventDefault();
+      if(pwN.value!==pwN2.value)return UI.toast("La confirmation ne correspond pas.","error");
+      const r=await Repo.pwd(App.user.id,pwO.value,pwN.value);
+      r.ok?UI.toast("Mot de passe modifié.","success"):UI.toast(r.error||"Erreur.","error");});
+    stOut.onclick=()=>App.logout();
+    stDel.onclick=()=>UI.confirm("Supprimer définitivement votre compte et vos données ?",()=>{
+      if(Repo.live)return UI.toast("En mode production, contactez le support pour supprimer votre compte.","info");
+      db_delete();App.logout(true);},{yes:"Supprimer",danger:true});
+    function db_delete(){const d=JSON.parse(localStorage.getItem("il_db_v2"));
+      d.users=d.users.filter(u=>u.id!==App.user.id);d.favorites=d.favorites.filter(f=>f.user_id!==App.user.id);d.session=null;
+      localStorage.setItem("il_db_v2",JSON.stringify(d));}}
+  return{dash,favs,contacts,visits,profile,settings};})();
+
+/* ================= ESPACE DÉMARCHEUR ================= */
+const AgentSpace=(()=>{const{icon:ic,esc,fmt,price,dfr}=UI;
+  const NAV=[{id:"dash",h:"#/espace/demarcheur",l:"Tableau de bord",i:"menu"},{id:"pr",h:"#/espace/demarcheur/annonces",l:"Mes annonces",i:"building"},{id:"add",h:"#/espace/demarcheur/nouvelle",l:"Ajouter une annonce",i:"plus"},{id:"in",h:"#/espace/demarcheur/demandes",l:"Demandes reçues",i:"bell"},{id:"st",h:"#/espace/demarcheur/stats",l:"Statistiques",i:"chart"},{id:"sb",h:"#/espace/demarcheur/abonnement",l:"Abonnement",i:"card"},{id:"pf",h:"#/espace/demarcheur/profil",l:"Profil professionnel",i:"user"},{id:"se",h:"#/espace/demarcheur/parametres",l:"Paramètres",i:"gear"}];
+  const shell=(a,t,inner,act="")=>`<div class="container"><div class="space">
+    <nav class="sidenav"><div class="sn-user"><div class="avatar"><img src="${App.user.avatar_url||Demo.avatar(App.user.full_name,2)}" alt=""></div><div><b>${esc(App.user.full_name)}</b><small>Démarcheur ${App.user.is_verified?"· Vérifié":""}</small></div></div>
+    ${NAV.map(n=>`<a class="sn-link ${n.id===a?"active":""}" href="${n.h}">${ic(n.i,19)} ${n.l}</a>`).join("")}</nav>
+    <div><div class="sp-tabs">${NAV.map(n=>`<a class="sp-tab ${n.id===a?"active":""}" href="${n.h}">${ic(n.i,16)} ${n.l}</a>`).join("")}</div>
+    <div class="sp-head"><h1>${t}</h1>${act}</div>${inner}</div></div></div>`;
+  function openVerif(){UI.modal(`<form id="vF" class="form-grid"><div class="notice navy">${ic("shield",18)} Vos justificatifs restent strictement privés. Ils ne sont consultés que par l'équipe de modération.</div>
+      <div class="field full"><label>Numéro de pièce d'identité</label><input class="in" id="vN" required placeholder="CNI / passeport"></div>
+      <div class="field full"><label>Justificatif <small>(photo du document)</small></label><input class="in" type="file" id="vFile" accept="image/*"></div>
+      <button class="btn btn-primary btn-block" type="submit">${ic("upload",18)} Soumettre pour contrôle</button></form>`,{title:"Vérification du compte"});
+    document.getElementById("vF").addEventListener("submit",async e=>{e.preventDefault();
+      const f=vFile.files[0];let du=null;if(f)du=await UI.loadFile(f,1000);
+      await Repo.verify(App.user.id,{id_number:vN.value,file_name:f?f.name:"aucun fichier",dataUrl:du});
+      UI.closeModal();UI.toast("Justificatifs envoyés. Notre équipe revient vers vous rapidement.","success");dash();});}
+  async function dash(){document.title="Espace démarcheur — IMMO LINK";
+    document.getElementById("app").innerHTML=shell("dash","Tableau de bord",`<div id="ad">${UI.skel(2)}</div>`);
+    const[s,sub,vs]=await Promise.all([Repo.stats(App.user.id),Repo.sub(App.user.id),Repo.visits(App.user.id,"agent")]);
+    const vf=Repo.verifOf(App.user.id);
+    const plan=(CONFIG.PLANS.find(p=>p.id===sub.plan)||{}).name||"Découverte";
+    document.getElementById("ad").innerHTML=`<div class="stat-grid">
+      <div class="stat-card"><div class="sc-ic">${ic("building",20)}</div><div class="stat-num">${s.active}</div><div class="stat-lbl">Annonces actives</div></div>
+      <div class="stat-card"><div class="sc-ic">${ic("eye",20)}</div><div class="stat-num">${fmt(s.views)}</div><div class="stat-lbl">Vues cumulées</div></div>
+      <div class="stat-card"><div class="sc-ic">${ic("phone",20)}</div><div class="stat-num">${s.contacts}</div><div class="stat-lbl">Contacts reçus</div></div>
+      <div class="stat-card"><div class="sc-ic">${ic("calendar",20)}</div><div class="stat-num">${vs.filter(v=>v.status==="en_attente").length}</div><div class="stat-lbl">Visites en attente</div></div></div>
+      <div class="detail-grid" style="margin-top:0"><div class="info-card"><h3>${ic("shield",18)} Statut de vérification</h3>
+        ${App.user.is_verified?`<div class="notice green">${ic("shield",18)} Votre compte est vérifié. Le badge « Vérifié » est affiché sur vos annonces.</div>`
+        :vf&&vf.status==="pending"?`<div class="notice">${ic("clock",18)} Vos justificatifs sont en cours de contrôle par notre équipe.</div>`
+        :`<p style="color:var(--mut);font-weight:600;margin-bottom:14px">Faites vérifier votre compte pour rassurer les clients et apparaître dans la section « Démarcheurs vérifiés ».</p><button class="btn btn-primary" id="askV">${ic("shield",18)} Demander la vérification</button>`}</div>
+      <div class="info-card"><h3>${ic("card",18)} Abonnement</h3>
+        <p style="font-weight:800;color:var(--ink);margin-bottom:6px">Formule ${plan} ${sub.status==="pending_payment"?'<span class="badge b-orange">Paiement en attente</span>':'<span class="badge b-green">Actif</span>'}</p>
+        <p style="color:var(--mut);font-weight:500;font-size:.9rem">Quota d'annonces actives selon la formule. Le paiement Mobile Money arrivera prochainement.</p>
+        <a class="btn btn-ghost btn-sm" style="margin-top:12px" href="#/espace/demarcheur/abonnement">Gérer mon abonnement</a></div></div>`;
+    const av=document.getElementById("askV");if(av)av.onclick=openVerif;}
+  async function props(){document.title="Mes annonces — IMMO LINK";
+    document.getElementById("app").innerHTML=shell("pr","Mes annonces",`<div id="pb">${UI.skel(2)}</div>`,
+      `<a class="btn btn-primary" href="#/espace/demarcheur/nouvelle">${ic("plus",18)} Nouvelle annonce</a>`);
+    const l=await Repo.mine(App.user.id);
+    document.getElementById("pb").innerHTML=l.length?`<div class="row-list">${l.map(p=>`<div class="row-item cols">
+      <div class="row-thumb"><img src="${p.images[0]?p.images[0].url:Demo.scene(p.category,1)}" alt=""></div>
+      <div><b>${esc(p.title)}</b><div class="ri-sub">${esc(Repo.catLabel(p.category))} · ${esc(p.city)} · ${price(p.price,p.transaction)} · ${fmt(p.views||0)} vues</div>
+      <div style="margin-top:7px"><span class="st st-${p.status}">${Repo.STATUS[p.status]}</span></div></div>
+      <div class="ri-actions"><a class="icon-btn" title="Voir" href="#/bien/${p.id}">${ic("eye",18)}</a>
+      <button class="icon-btn" title="Modifier" data-ed="${p.id}">${ic("edit",18)}</button>
+      ${p.status==="available"?`<button class="icon-btn" title="Désactiver" data-st="${p.id}:expired">${ic("clock",18)}</button>`:""}
+      ${p.status==="expired"?`<button class="icon-btn" title="Renouveler / réactiver" data-st="${p.id}:available">${ic("check",18)}</button>`:""}
+      ${p.status==="available"&&p.transaction==="location"?`<button class="icon-btn" title="Marquer comme loué" data-st="${p.id}:rented">${ic("key",18)}</button>`:""}
+      ${p.status==="available"&&p.transaction==="vente"?`<button class="icon-btn" title="Marquer comme vendu" data-st="${p.id}:sold">${ic("check",18)}</button>`:""}
+      <button class="icon-btn" title="Supprimer" style="color:var(--no)" data-del="${p.id}">${ic("trash",18)}</button></div></div>`).join("")}</div>`
+      :UI.empty("building","Aucune annonce publiée","Publiez votre premier bien : il sera visible par des milliers de chercheurs.","<a class='btn btn-primary' href='#/espace/demarcheur/nouvelle'>Ajouter une annonce</a>");
+    UI.bind("[data-ed]","click",e=>location.hash="#/espace/demarcheur/modifier/"+e.currentTarget.dataset.ed);
+    UI.bind("[data-del]","click",e=>UI.confirm("Supprimer définitivement cette annonce ?",async()=>{
+      await Repo.remove(e.currentTarget.dataset.del);UI.toast("Annonce supprimée.","info");props();},{yes:"Supprimer",danger:true}));
+    UI.bind("[data-st]","click",async e=>{const[id,s]=e.currentTarget.dataset.st.split(":");
+      await Repo.setStatus(id,s);UI.toast(s==="available"?"Annonce renouvelée et remise en ligne.":"Statut mis à jour.","success");props();});}
+  async function form(editId){const editing=!!editId;let orig=editing?await Repo.get(editId):null;
+    if(editing&&(!orig||orig.agent_id!==App.user.id)){document.getElementById("app").innerHTML=shell("pr","Annonce introuvable",UI.empty("alert","Annonce introuvable","Cette annonce n'existe pas ou ne vous appartient pas."));return;}
+    document.title=(editing?"Modifier":"Ajouter")+" une annonce — IMMO LINK";
+    let photos=orig?orig.images.map(im=>({url:im.url,is_main:!!im.is_main})):[];
+    let tx=orig?orig.transaction:"location", cat=orig?orig.category:"maison";
+    document.getElementById("app").innerHTML=shell(editing?"pr":"add",editing?"Modifier l'annonce":"Ajouter une annonce",`
+    <form id="pForm" novalidate>
+      <div class="form-sec"><h3><span class="n">1</span> Informations générales</h3><div class="form-grid">
+        <div class="field full"><label>Titre de l'annonce</label><input class="in" id="pTitle" maxlength="90" placeholder="Ex. : Appartement 2 chambres à Tokoin" value="${esc(orig?.title||"")}"></div>
+        <div class="field full"><label>Description complète</label><textarea class="in" id="pDesc">${esc(orig?.description||"")}</textarea></div>
+        <div class="field"><label>Catégorie</label><select class="in" id="pCat">${Repo.CATS.map(c=>`<option value="${c.id}" ${cat===c.id?"selected":""}>${c.label}</option>`).join("")}</select></div>
+        <div class="field"><label>Transaction</label><select class="in" id="pTx"><option value="location" ${tx==="location"?"selected":""}>Location</option><option value="vente" ${tx==="vente"?"selected":""}>Vente</option></select></div></div></div>
+      <div class="form-sec"><h3><span class="n">2</span> Localisation</h3><div class="form-grid">
+        <div class="field"><label>Ville</label><select class="in" id="pCity">${Repo.cities().map(c=>`<option ${orig?.city===c?"selected":""}>${c}</option>`).join("")}</select></div>
+        <div class="field"><label>Quartier</label><input class="in" id="pDist" value="${esc(orig?.district||"")}"></div>
+        <div class="field full"><label>Adresse ou repère</label><input class="in" id="pAddr" value="${esc(orig?.address||"")}"></div></div></div>
+      <div class="form-sec"><h3><span class="n">3</span> Prix</h3><div class="form-grid" id="priceB"></div></div>
+      <div class="form-sec"><h3><span class="n">4</span> Caractéristiques</h3><div class="form-grid">
+        <div class="field"><label>Chambres</label><input class="in" type="number" min="0" id="pCh" value="${orig?.chambers||0}"></div>
+        <div class="field"><label>Salles de bain</label><input class="in" type="number" min="0" id="pBa" value="${orig?.bathrooms||0}"></div>
+        <div class="field"><label>Salons</label><input class="in" type="number" min="0" id="pLo" value="${orig?.lounges||0}"></div>
+        <div class="field"><label>Superficie (m²)</label><input class="in" type="number" min="0" id="pSu" value="${orig?.surface||""}"></div>
+        <div class="field"><label>Cuisine</label><input class="in" id="pKi" value="${esc(orig?.kitchen||"")}"></div></div>
+        <p class="mini-label" style="margin:16px 0 9px">Équipements</p><div class="check-row">
+        <label class="check-item"><input type="checkbox" id="pGa" ${orig?.garage?"checked":""}> Garage</label>
+        <label class="check-item"><input type="checkbox" id="pJa" ${orig?.garden?"checked":""}> Jardin</label>
+        <label class="check-item"><input type="checkbox" id="pFu" ${orig?.furnished?"checked":""}> Meublé</label>
+        <label class="check-item"><input type="checkbox" data-am="Climatisation" ${orig?.amenities?.includes("Climatisation")?"checked":""}> Climatisation</label>
+        <label class="check-item"><input type="checkbox" data-am="Forage" ${orig?.amenities?.includes("Forage")?"checked":""}> Forage</label>
+        <label class="check-item"><input type="checkbox" data-am="Gardien" ${orig?.amenities?.includes("Gardien")?"checked":""}> Gardien</label>
+        <label class="check-item"><input type="checkbox" data-am="Eau courante" ${orig?.amenities?.includes("Eau courante")?"checked":""}> Eau courante</label>
+        <label class="check-item"><input type="checkbox" data-am="Clôture" ${orig?.amenities?.includes("Clôture")?"checked":""}> Clôture</label>
+        <label class="check-item"><input type="checkbox" data-am="Titré" ${orig?.amenities?.includes("Titré")?"checked":""}> Titre foncier</label></div></div>
+      <div class="form-sec"><h3><span class="n">5</span> Médias <small style="color:var(--mut);font-weight:600">(${photos.length}/${CONFIG.MAX_PHOTOS} photos)</small></h3>
+        <div class="photo-grid" id="phG"></div>
+        <div class="notice navy" style="margin-top:14px">${ic("camera",18)} La photo marquée « principale » sert de couverture. Sans photo, une illustration est générée automatiquement (mode démo).</div></div>
+      <div class="form-sec"><h3><span class="n">6</span> Publication</h3>
+        ${Repo.live?`<div class="notice">${ic("clock",18)} Votre annonce sera publiée après modération (statut « En attente de validation »).</div>`
+        :`<div class="notice">${ic("bell",18)} Mode démonstration : publication immédiate avec étiquette « Démo ». En production, chaque annonce passe par la modération.</div>`}
+        <button class="btn btn-primary btn-lg btn-block" type="submit" id="pubB">${ic("send",19)} ${editing?"Enregistrer les modifications":"Soumettre l'annonce"}</button></div></form>`);
+    function renderPrice(){const b=document.getElementById("priceB");
+      b.innerHTML=tx==="location"
+        ?`<div class="field"><label>Loyer mensuel (FCFA) *</label><input class="in" type="number" min="0" id="pPr" value="${orig?.price||""}"></div>
+          <div class="field"><label>Caution (FCFA)</label><input class="in" type="number" min="0" id="pCa" value="${orig?.caution||""}"></div>
+          <div class="field"><label>Avance (FCFA)</label><input class="in" type="number" min="0" id="pAv" value="${orig?.avance||""}"></div>
+          <div class="field"><label>Commission (FCFA)</label><input class="in" type="number" min="0" id="pCo" value="${orig?.commission||""}"></div>`
+        :`<div class="field"><label>Prix de vente (FCFA) *</label><input class="in" type="number" min="0" id="pPr" value="${orig?.price||""}"></div>
+          <div class="field"><label>Superficie (m²)</label><input class="in" type="number" min="0" id="pSu2" value="${orig?.surface||""}"></div>`;}
+    renderPrice();
+    pTx.onchange=e=>{tx=e.target.value;renderPrice();};
+    pCat.onchange=e=>{cat=e.target.value;};
+    function renderPhotos(){const g=document.getElementById("phG");
+      g.innerHTML=photos.map((p,i)=>`<div class="photo-item ${p.is_main?"main":""}"><img src="${p.url}" alt="Photo ${i+1}">
+        <button type="button" class="pi-x" data-rm="${i}" aria-label="Retirer">${ic("x",13)}</button>
+        ${p.is_main?'<span class="pi-main">Principale</span>':`<button type="button" class="pi-main" style="background:var(--ink);opacity:.85" data-mn="${i}">Principale</button>`}</div>`).join("")
+        +(photos.length<CONFIG.MAX_PHOTOS?`<button type="button" class="photo-add" id="phAdd">${ic("upload",24)} Ajouter<br>une photo</button><input type="file" id="phIn" accept="image/*" multiple hidden>`:"");
+      g.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{photos.splice(+b.dataset.rm,1);if(photos.length&&!photos.some(p=>p.is_main))photos[0].is_main=true;renderPhotos();});
+      g.querySelectorAll("[data-mn]").forEach(b=>b.onclick=()=>{photos.forEach((p,i)=>p.is_main=i===+b.dataset.mn);renderPhotos();});
+      const ad=document.getElementById("phAdd");if(ad)ad.onclick=()=>phIn.click();
+      const inp=document.getElementById("phIn");
+      if(inp)inp.onchange=async()=>{for(const f of inp.files){
+          if(photos.length>=CONFIG.MAX_PHOTOS){UI.toast("Limite de "+CONFIG.MAX_PHOTOS+" photos atteinte.","error");break;}
+          if(f.size>5*1024*1024){UI.toast("Fichier trop lourd (5 Mo max).","error");continue;}
+          photos.push({url:await UI.loadFile(f),is_main:photos.length===0});}
+        renderPhotos();};}
+    renderPhotos();
+    document.getElementById("pForm").addEventListener("submit",async e=>{e.preventDefault();
+      const title=pTitle.value.trim(),desc=pDesc.value.trim(),pr=+(pPr?pPr.value:0);
+      if(title.length<8)return UI.toast("Le titre doit contenir au moins 8 caractères.","error");
+      if(desc.length<20)return UI.toast("Ajoutez une description d'au moins 20 caractères.","error");
+      if(!pr)return UI.toast("Indiquez un prix valide.","error");
+      if(!photos.length)photos=[{url:Demo.scene(cat,Math.floor(Math.random()*5)),is_main:true}];
+      const data={...(orig||{}),title,description:desc,category:cat,transaction:tx,city:pCity.value,
+        district:pDist.value.trim(),address:pAddr.value.trim(),price:pr,
+        caution:pCa?+pCa.value||null:null,avance:pAv?+pAv.value||null:null,commission:pCo?+pCo.value||null:null,
+        surface:+(pSu.value||(pSu2?pSu2.value:""))||null,chambers:+pCh.value||0,bathrooms:+pBa.value||0,lounges:+pLo.value||0,
+        kitchen:pKi.value.trim(),garage:pGa.checked,garden:pJa.checked,furnished:pFu.checked,
+        amenities:[...document.querySelectorAll("[data-am]:checked")].map(x=>x.dataset.am),
+        status:editing?orig.status:(Repo.live?"pending":"available")};
+      pubB.classList.add("loading");
+      const r=await Repo.save(data,photos,App.user.id);pubB.classList.remove("loading");
+      if(!r.ok)return UI.toast(r.error||"Erreur lors de l'enregistrement.","error");
+      UI.toast(editing?"Annonce mise à jour.":(Repo.live?"Annonce soumise à la modération.":"Annonce publiée (mode démo)."),"success");
+      location.hash="#/espace/demarcheur/annonces";});}
+  async function inbox(){document.title="Demandes reçues — IMMO LINK";
+    document.getElementById("app").innerHTML=shell("in","Demandes reçues & visites",`<div id="ib"></div>`);
+    const l=await Repo.visits(App.user.id,"agent");
+    const bd=s=>`<span class="badge ${{en_attente:"b-orange",acceptee:"b-green",refusee:"b-red",reportee:"b-navy",terminee:"b-grey"}[s]}">${Repo.VSTATUS[s]}</span>`;
+    document.getElementById("ib").innerHTML=l.length?`<div class="row-list">${l.map(v=>{const p=v.properties||{},c=v.client||{};
+      return `<div class="row-item cols"><div class="row-thumb">${p.images?`<img src="${p.images[0].url}">`:""}</div>
+      <div><b>${esc(p.title||"Annonce")}</b><div class="ri-sub">Client : ${esc(c.full_name||"—")} · ${esc(c.phone||"")}</div>
+      <div class="ri-sub">${ic("calendar",13)} Visite souhaitée : ${dfr(v.desired_date)} à ${esc(v.desired_time)}</div>
+      ${v.message?`<div class="ri-sub" style="font-style:italic">« ${esc(v.message)} »</div>`:""}
+      ${v.proposal?`<div class="ri-sub">Proposition envoyée : ${esc(v.proposal)}</div>`:""}</div>
+      <div class="ri-actions">${bd(v.status)}
+      ${v.status==="en_attente"?`<button class="btn btn-sm" style="background:var(--ok06);color:var(--ok)" data-va="${v.id}:acceptee">${ic("check",15)} Accepter</button>
+        <button class="btn btn-danger btn-sm" data-va="${v.id}:refusee">${ic("x",15)} Refuser</button>
+        <button class="btn btn-ghost btn-sm" data-vp="${v.id}">${ic("clock",15)} Autre date</button>`:""}
+      ${v.status==="acceptee"?`<button class="btn btn-navy btn-sm" data-va="${v.id}:terminee">${ic("check",15)} Terminée</button>`:""}
+      ${c.phone?`<a class="icon-btn" href="${Repo.telLink(c.phone)}" title="Appeler">${ic("phone",17)}</a><a class="icon-btn" href="${Repo.waLink(c.phone,"votre demande de visite")}" target="_blank" rel="noopener" title="WhatsApp">${ic("wa",17)}</a>`:""}</div></div>`;}).join("")}</div>`
+      :UI.empty("calendar","Aucune demande pour le moment","Les demandes de visite de vos annonces apparaîtront ici.");
+    UI.bind("[data-va]","click",async e=>{const[id,s]=e.currentTarget.dataset.va.split(":");
+      await Repo.updVisit(id,s);UI.toast(s==="acceptee"?"Visite acceptée. Le client est notifié.":s==="refusee"?"Demande refusée.":"Visite marquée comme terminée.","success");inbox();});
+    UI.bind("[data-vp]","click",e=>{const id=e.currentTarget.dataset.vp;
+      UI.modal(`<form id="vpF" class="form-grid"><div class="field full"><label>Nouvelle date proposée</label><input class="in" type="date" id="vpD" required></div>
+        <div class="field full"><label>Heure</label><input class="in" type="time" id="vpT" value="10:00" required></div>
+        <button class="btn btn-primary btn-block" type="submit">Envoyer la proposition</button></form>`,{title:"Proposer une autre date"});
+      document.getElementById("vpF").addEventListener("submit",async ev=>{ev.preventDefault();
+        await Repo.updVisit(id,"reportee",dfr(vpD.value)+" à "+vpT.value);
+        UI.closeModal();UI.toast("Proposition envoyée au client.","success");inbox();});});}
+  async function stats(){document.title="Statistiques — IMMO LINK";
+    document.getElementById("app").innerHTML=shell("st","Statistiques",`<div id="sb2">${UI.skel(2)}</div>`);
+    const s=await Repo.stats(App.user.id),l=await Repo.mine(App.user.id);
+    const mx=Math.max(1,...s.series.map(d=>d.n));
+    const top=l.slice().sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,5);
+    document.getElementById("sb2").innerHTML=`<div class="stat-grid">
+      <div class="stat-card"><div class="sc-ic">${ic("eye",20)}</div><div class="stat-num">${fmt(s.views)}</div><div class="stat-lbl">Vues totales</div></div>
+      <div class="stat-card"><div class="sc-ic">${ic("heart",20)}</div><div class="stat-num">${s.favs}</div><div class="stat-lbl">Favoris</div></div>
+      <div class="stat-card"><div class="sc-ic">${ic("phone",20)}</div><div class="stat-num">${s.contacts}</div><div class="stat-lbl">Contacts</div></div>
+      <div class="stat-card"><div class="sc-ic">${ic("calendar",20)}</div><div class="stat-num">${s.visits}</div><div class="stat-lbl">Demandes de visite</div></div></div>
+      <div class="chart-card"><h3>${ic("chart",18)} Vues des 7 derniers jours</h3>
+      ${s.series.map(d=>`<div class="bar-row"><span>${d.label}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(d.n/mx*100)}%"></div></div><span style="text-align:right">${d.n}</span></div>`).join("")}</div>
+      <div class="chart-card"><h3>${ic("eye",18)} Vos annonces les plus vues</h3>
+      ${top.length?`<table class="tbl"><thead><tr><th>Annonce</th><th>Statut</th><th style="text-align:right">Vues</th></tr></thead><tbody>
+      ${top.map(p=>`<tr><td>${esc(p.title)}</td><td><span class="st st-${p.status}">${Repo.STATUS[p.status]}</span></td><td style="text-align:right"><b>${fmt(p.views||0)}</b></td></tr>`).join("")}</tbody></table>`
+      :`<p style="color:var(--mut);font-weight:600">Publiez des annonces pour voir leurs statistiques.</p>`}</div>`;}
+  async function sub(){document.title="Abonnement — IMMO LINK";
+    document.getElementById("app").innerHTML=shell("sb","Abonnement",`<div id="sbx"></div>`);
+    const cur=await Repo.sub(App.user.id);
+    document.getElementById("sbx").innerHTML=`<div class="notice navy">${ic("card",18)} Version 1 : activation sans paiement automatisé. Après votre choix, notre équipe vous contacte pour finaliser (Mobile Money bientôt disponible).</div>
+      <div class="plans">${CONFIG.PLANS.map(p=>`<div class="plan ${p.pop?"pop":""}">${p.pop?'<span class="pop-tag">Recommandée</span>':""}
+        <h3>${p.name}</h3><div class="plan-price">${p.price?fmt(p.price)+" FCFA":"Gratuit"}<small>${p.period||""}</small></div>
+        <ul><li>${ic("check",16)} Jusqu'à <b>&nbsp;${p.quota}&nbsp;</b> annonces actives</li><li>${ic("check",16)} Tableau de bord et statistiques</li>
+        <li>${ic("check",16)} Demandes de visite illimitées</li>${p.id!=="decouverte"?`<li>${ic("check",16)} Mise en avant dans les résultats</li>`:""}
+        ${p.id==="agence"?`<li>${ic("check",16)} Accompagnement prioritaire</li>`:""}</ul>
+        ${cur.plan===p.id?`<button class="btn btn-ghost btn-block" disabled>Formule actuelle ${cur.status==="pending_payment"?"(paiement en attente)":""}</button>`
+        :`<button class="btn ${p.pop?"btn-primary":"btn-navy"} btn-block" data-pl="${p.id}">Choisir ${p.name}</button>`}</div>`).join("")}</div>`;
+    UI.bind("[data-pl]","click",e=>{const p=CONFIG.PLANS.find(x=>x.id===e.currentTarget.dataset.pl);
+      UI.confirm("Choisir la formule "+p.name+" ? "+(p.price?"Un paiement de "+fmt(p.price)+" FCFA"+p.period+" sera à confirmer avec notre équipe.":""),
+        async()=>{await Repo.setSub(App.user.id,p.id);
+          UI.toast(p.price?"Formule enregistrée. Notre équipe vous contacte pour le paiement.":"Formule Découverte activée.","success");sub();},{yes:"Confirmer"});});}
+  function profile(){document.title="Profil professionnel — IMMO LINK";const u=App.user;
+    document.getElementById("app").innerHTML=shell("pf","Profil professionnel",`<form class="info-card form-grid" id="apF" style="max-width:680px">
+      <div class="field"><label>Nom complet</label><input class="in" id="apN" value="${esc(u.full_name)}" required></div>
+      <div class="field"><label>Nom professionnel / agence</label><input class="in" id="apA" value="${esc(u.agency_name||"")}"></div>
+      <div class="field"><label>Téléphone</label><input class="in" id="apP" value="${esc(u.phone||"")}"></div>
+      <div class="field"><label>Ville</label><select class="in" id="apC">${Repo.cities().map(c=>`<option ${u.city===c?"selected":""}>${c}</option>`).join("")}</select></div>
+      <div class="field full"><label>Présentation publique</label><textarea class="in" id="apB">${esc(u.bio||"")}</textarea></div>
+      <button class="btn btn-primary" type="submit">${ic("check",18)} Enregistrer</button></form>
+      <div class="info-card" style="max-width:680px"><h3>${ic("shield",18)} Vérification</h3>
+      ${u.is_verified?`<div class="notice green">${ic("shield",18)} Compte vérifié — badge affiché sur toutes vos annonces.</div>`
+      :`<p style="color:var(--mut);font-weight:600;margin-bottom:12px">La vérification renforce la confiance des clients et votre visibilité.</p><button class="btn btn-primary" id="apV">${ic("shield",18)} Demander la vérification</button>`}</div>`);
+    document.getElementById("apF").addEventListener("submit",async e=>{e.preventDefault();
+      const r=await Repo.updProf(u.id,{full_name:apN.value,agency_name:apA.value,phone:Repo.normPhone(apP.value),city:apC.value,bio:apB.value});
+      if(r.ok){await App.refresh();UI.toast("Profil professionnel mis à jour.","success");}else UI.toast(r.error||"Erreur.","error");});
+    const v=document.getElementById("apV");if(v)v.onclick=openVerif;}
+  function settings(){document.title="Paramètres — IMMO LINK";
+    document.getElementById("app").innerHTML=shell("se","Paramètres",`<form class="info-card form-grid" id="apwF" style="max-width:560px">
+      <h3 style="display:flex;gap:9px;align-items:center">${ic("key",18)} Changer le mot de passe</h3>
+      <div class="field full"><label>Mot de passe actuel</label><input class="in" type="password" id="apwO" required></div>
+      <div class="field"><label>Nouveau</label><input class="in" type="password" id="apwN" minlength="6" required></div>
+      <div class="field"><label>Confirmation</label><input class="in" type="password" id="apwN2" required></div>
+      <button class="btn btn-primary" type="submit">Mettre à jour</button></form>
+      <div class="info-card" style="max-width:560px"><h3 style="display:flex;gap:9px;align-items:center">${ic("gear",18)} Session</h3>
+      <button class="btn btn-ghost" id="apwOut">${ic("logout",18)} Se déconnecter</button>
+      <p class="hint" style="margin-top:12px">Votre rôle et votre badge de vérification sont gérés par la plateforme : vous ne pouvez pas les modifier vous-même.</p></div>`);
+    document.getElementById("apwF").addEventListener("submit",async e=>{e.preventDefault();
+      if(apwN.value!==apwN2.value)return UI.toast("La confirmation ne correspond pas.","error");
+      const r=await Repo.pwd(App.user.id,apwO.value,apwN.value);
+      r.ok?UI.toast("Mot de passe modifié.","success"):UI.toast(r.error||"Erreur.","error");});
+    apwOut.onclick=()=>App.logout();}
+  return{dash,props,form,inbox,stats,sub,profile,settings};})();
+
+/* ================= APP ================= */
+const App={user:null,fav:new Set(),
+  async refresh(){this.user=await Repo.session();this.fav=this.user?await Repo.favSet(this.user.id):new Set();
+    const lb=document.getElementById("topLoginBtn");
+    lb.textContent=this.user?(this.user.role==="agent"?"Espace démarcheur":"Mon espace"):"Connexion";
+    lb.href=this.user?(this.user.role==="agent"?"#/espace/demarcheur":"#/espace/client"):"#/connexion";
+    const pm=document.getElementById("pmSpace");
+    pm.textContent=this.user?"Mon espace":"Se connecter";
+    pm.href=this.user?(this.user.role==="agent"?"#/espace/demarcheur":"#/espace/client"):"#/connexion";},
+  async logout(s){await Repo.signout();await this.refresh();if(!s)UI.toast("Vous êtes déconnecté.","info");location.hash="#/";},
+  routes(){const need=r=>async()=>{if(!App.user)return "/connexion";
+      if(r&&App.user.role!==r)return App.user.role==="agent"?"/espace/demarcheur":"/espace/client";return null;};
+    Router.on(/^$/,()=>Views.home());
+    Router.on(/^explorer$/,(m,q)=>Views.explore(q));
+    Router.on(/^location$/,(m,q)=>Views.explore(q,{tx:"location"}));
+    Router.on(/^vente$/,(m,q)=>Views.explore(q,{tx:"vente"}));
+    Router.on(/^categorie\/([a-z]+)$/,(m,q)=>Views.explore(q,{cat:m[1]}));
+    Router.on(/^bien\/([\w-]+)$/,m=>Views.property(m[1]));
+    Router.on(/^demarcheurs$/,()=>Views.agents());
+    Router.on(/^demarcheur\/([\w-]+)$/,m=>Views.agentProfile(m[1]));
+    Router.on(/^a-propos$/,()=>Views.about());
+    Router.on(/^contact$/,()=>Views.contact());
+    Router.on(/^legal\/([a-z]+)$/,m=>Views.legal(m[1]));
+    Router.on(/^connexion$/,()=>AuthViews.login());
+    Router.on(/^inscription$/,()=>AuthViews.register());
+    Router.on(/^favoris$/,async()=>{if(!App.user){location.hash="#/connexion";return;}
+      App.user.role==="agent"?location.hash="#/espace/demarcheur":ClientSpace.favs();},need("client"));
+    Router.on(/^profil$/,async()=>{if(!App.user){location.hash="#/inscription";return;}
+      location.hash=App.user.role==="agent"?"#/espace/demarcheur/profil":"#/espace/client/profil";});
+    Router.on(/^espace\/client$/,()=>ClientSpace.dash(),need("client"));
+    Router.on(/^espace\/client\/favoris$/,()=>ClientSpace.favs(),need("client"));
+    Router.on(/^espace\/client\/contacts$/,()=>ClientSpace.contacts(),need("client"));
+    Router.on(/^espace\/client\/visites$/,()=>ClientSpace.visits(),need("client"));
+    Router.on(/^espace\/client\/profil$/,()=>ClientSpace.profile(),need("client"));
+    Router.on(/^espace\/client\/parametres$/,()=>ClientSpace.settings(),need("client"));
+    Router.on(/^espace\/demarcheur$/,()=>AgentSpace.dash(),need("agent"));
+    Router.on(/^espace\/demarcheur\/annonces$/,()=>AgentSpace.props(),need("agent"));
+    Router.on(/^espace\/demarcheur\/nouvelle$/,()=>AgentSpace.form(null),need("agent"));
+    Router.on(/^espace\/demarcheur\/modifier\/([\w-]+)$/,m=>AgentSpace.form(m[1]),need("agent"));
+    Router.on(/^espace\/demarcheur\/demandes$/,()=>AgentSpace.inbox(),need("agent"));
+    Router.on(/^espace\/demarcheur\/stats$/,()=>AgentSpace.stats(),need("agent"));
+    Router.on(/^espace\/demarcheur\/abonnement$/,()=>AgentSpace.sub(),need("agent"));
+    Router.on(/^espace\/demarcheur\/profil$/,()=>AgentSpace.profile(),need("agent"));
+    Router.on(/^espace\/demarcheur\/parametres$/,()=>AgentSpace.settings(),need("agent"));},
+  events(){const btn=plusBtn,menu=plusMenu;
+    btn.addEventListener("click",e=>{e.stopPropagation();btn.setAttribute("aria-expanded",menu.classList.toggle("open"));});
+    document.addEventListener("click",e=>{if(!menu.contains(e.target)&&e.target!==btn){menu.classList.remove("open");btn.setAttribute("aria-expanded","false");}});
+    document.addEventListener("keydown",e=>{if(e.key==="Escape"){menu.classList.remove("open");btn.setAttribute("aria-expanded","false");UI.closeModal();}});
+    menu.addEventListener("click",e=>{if(e.target.closest("a")){menu.classList.remove("open");btn.setAttribute("aria-expanded","false");}});
+    addEventListener("scroll",()=>topbar.classList.toggle("scrolled",scrollY>8),{passive:true});
+    document.addEventListener("click",async e=>{
+      const f=e.target.closest("[data-fav]");
+      if(f){e.stopPropagation();
+        if(!App.user){UI.toast("Connectez-vous pour utiliser les favoris.","info");location.hash="#/connexion";return;}
+        const add=await Repo.favToggle(App.user.id,f.dataset.fav);
+        App.fav=await Repo.favSet(App.user.id);f.classList.toggle("on",add);
+        UI.toast(add?"Ajouté à vos favoris.":"Retiré de vos favoris.",add?"success":"info");return;}
+      const g=e.target.closest("[data-goto]");
+      if(g&&!e.target.closest("[data-fav]"))location.hash=g.dataset.goto;});
+    document.addEventListener("keydown",e=>{if(e.key==="Enter"){const g=e.target.closest("[data-goto]");if(g)location.hash=g.dataset.goto;}});},
+  async init(){
+    const li=document.getElementById("logoImg");
+    li.onerror=()=>{li.src=Demo.LOGO_FB;};
+    if(!Repo.live)demoPill.hidden=false;
+    await this.refresh();this.routes();this.events();Router.start();}
+};
+document.addEventListener("DOMContentLoaded",()=>App.init());
+</script>
+</body>
+</html>
